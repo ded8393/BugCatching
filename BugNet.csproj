@@ -33,6 +33,12 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="PyTK">
+      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Stardew Valley\Mods\PyTK\PyTK.dll</HintPath>
+    </Reference>
+    <Reference Include="StardewModdingAPI.Toolkit">
+      <HintPath>..\..\..\..\Program Files (x86)\Steam\steamapps\common\Stardew Valley\smapi-internal\StardewModdingAPI.Toolkit.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -43,7 +49,14 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bug.cs" />
+    <Compile Include="BugApi.cs" />
+    <Compile Include="BugModel.cs" />
+    <Compile Include="BugNetData.cs" />
+    <Compile Include="BugNetMod.cs" />
+    <Compile Include="BugNetTool.cs" />
     <Compile Include="CritterEntry.cs" />
+    <Compile Include="CritterLocations.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="Log.cs" />
     <Compile Include="Mod.cs" />
