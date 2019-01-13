@@ -35,8 +35,8 @@ namespace BugNet
 
         public Texture2D getTexture(IModHelper helper = null)
         {
-            if (texture != null)
-                return texture;
+            //if (texture != null)
+            //    return texture;
             if (helper == null)
                 helper = Helper;
             

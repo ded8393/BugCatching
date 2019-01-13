@@ -18,8 +18,10 @@ using StardewModdingAPI;
 
 namespace BugNet
 {
-    class BugNetTool : Hoe, ISaveElement, ICustomObject
+    public class BugNetTool : Hoe, ISaveElement, ICustomObject
     {
+        internal IMonitor Monitor = BugNetMod._monitor;
+
         internal List<BugModel> AllBugs = BugNetMod.AllBugs;
         internal static Texture2D texture;
         private bool inUse;
@@ -37,13 +39,16 @@ namespace BugNet
 
         public dynamic getReplacement()
         {
-            BugNetTool replacement = new BugNetTool();
+            //BugNetTool replacement = new BugNetTool();
+            //return replacement;
+            Chest replacement = new Chest(true);
             return replacement;
         }
 
         public void rebuild(Dictionary<string, string> additionalSaveData, object replacement)
         {
             build();
+            Chest chest = (Chest)replacement;
 
         }
 
@@ -55,7 +60,6 @@ namespace BugNet
         public BugNetTool()
             : base()
         {
-            
             build();
         }
 
@@ -80,6 +84,7 @@ namespace BugNet
         {
             return new BugNetTool();
         }
+        
 
         public override void setNewTileIndexForUpgradeLevel()
         {
@@ -93,7 +98,7 @@ namespace BugNet
                 loadTextures();
 
             Name = "Bug Net";
-            description = "Empty";
+            description = "catch critters";
 
             InitialParentTileIndex = 77;
             CurrentParentTileIndex = 77;
@@ -129,6 +134,8 @@ namespace BugNet
             {
                 List<Critter> critters = CritterLocations.GetCrittersAtGameLocation(location);
                 foreach (Critter critter in critters)
+                {
+                    Monitor.Log(critter.getBoundingBox(0, 0).ToString());
                     if (critter.getBoundingBox(0, 0).Intersects(rectangle))
                     {
                         Game1.addHUDMessage(new HUDMessage("babied", 3));
@@ -136,6 +143,7 @@ namespace BugNet
                         caughtBug = true;
                         break;
                     }
+                }
             }
            
 
@@ -143,17 +151,15 @@ namespace BugNet
         }
 
         public override void DoFunction(GameLocation location, int x, int y, int power, StardewValley.Farmer who)
-        {
-            Game1.showRedMessage("I'm doing function");
-            
+        { 
             who.Stamina -= (float)(2 * power) - (float)who.FarmingLevel * 0.1f;
             power = who.toolPower;
             who.stopJittering();
 
             if ( caughtBug && BugInNet != null)
             {
-                
-                var bugName = BugInNet.GetType().ToString().Split('.').Last();
+
+                var bugName = BugInNet.GetType().ToString();
                 
 
                 string msg = "location: " + location.GetType().ToString() + ", critter: " + bugName;
@@ -169,10 +175,20 @@ namespace BugNet
         }
         public static void getBugFromNet(GameLocation location, StardewValley.Farmer who)
         {
-            
-            Bug bug = new Bug(BugInNet);
+            Bug bug;
+        
+            if (BugInNet.GetType().ToString() == "BugNet.CustomCritter")
+            {
+                bug = new Bug((CustomCritter)BugInNet);
+            } else
+            {
+                BugApi bugApi = new BugApi();
+                bug = bugApi.getBugFromCritterType(BugInNet);
+
+            }
+        
             CritterLocations.RemoveCritterFromGameLocation(location, BugInNet);
-            who.addItemByMenuIfNecessary((Item) bug);
+            who.addItemByMenuIfNecessary((Item) bug.getOne());
             BugInNet = (Critter) null;
             caughtBug = false;
         }

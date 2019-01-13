@@ -8,6 +8,6 @@ namespace BugNet
 {
     public class BugNetData
     {
-        public List<BugModel> AllBugs { get; set; } = new List<BugModel>();
+        public List<CritterEntry> AllCritters { get; set; } = new List<CritterEntry>();
     }
 }

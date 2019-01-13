@@ -44,9 +44,7 @@ namespace BugNet
         }
         public static void AddCritterToGameLocation(GameLocation location, Critter critter)
         {
-            List<Critter> newCritterList = GetCrittersAtGameLocation(location);
-            newCritterList.Add(critter);
-            UpdateCrittersAtGameLocation(location, newCritterList);
+            location.addCritter(critter);
         }
 
         

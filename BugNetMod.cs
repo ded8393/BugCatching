@@ -6,6 +6,7 @@ using StardewModdingAPI;
 using StardewModdingAPI.Events;
 using StardewModdingAPI.Utilities;
 
+using PyTK;
 using PyTK.Types;
 using PyTK.Extensions;
 using PyTK.CustomElementHandler;
@@ -29,51 +30,95 @@ namespace BugNet
         public static IMonitor _monitor;
         public static BugNetData bugNetData;
         public static List<BugModel> AllBugs = new List<BugModel>();
+        public static List<CritterEntry> AllCritters = new List<CritterEntry>();
+        public static Dictionary<int, string> AssetData = new Dictionary<int, string>();
         public static string ModId;
+        public static Mod instance;
         public override void Entry(IModHelper helper)
         {
+            instance = this;
             _helper = helper;
             _monitor = Monitor;
             ModId = _helper.ModRegistry.ModID;
             BugNetTool bugnet = new BugNetTool();
             new InventoryItem(bugnet, 100).addToNPCShop("Pierre");
             CustomObjectData.newObject(ModId + "Tool", BugNetTool.texture, Color.White, "Bug Net", "Wonder what I can do with this?", 0, customType: typeof(BugNetTool));
-            Helper.Events.GameLoop.UpdateTicked += LoadBugData;
+            Helper.Events.GameLoop.UpdateTicked += LoadCritters;
             CritterLocations.init(Helper);
-            PyLua.registerType(typeof(Bug), registerAssembly: true);
+            //PyLua.registerType(typeof(BugNetTool), registerAssembly: true);
+            //PyLua.registerType(typeof(Bug), registerAssembly: true);
+
+            Helper.Events.Player.Warped += onLocationChanged;
+            
 
         }
-        public void LoadBugData(object sender, StardewModdingAPI.Events.UpdateTickedEventArgs e)
+        //public bool CanEdit<T>(IAssetInfo asset)
+        //{
+        //    return asset.AssetNameEquals("Data\\ObjectInformation");
+        //}
+        //public void Edit<T>(IAssetData asset)
+        //{
+        //    if (asset.AssetNameEquals("Data\\ObjectInformation"))
+        //    {
+        //        var data = asset.AsDictionary<int, string>().Data;
+        //        Dictionary<int, string> BugsData = _helper.Data.ReadJsonFile<Dictionary<int, string>>("data\\bugs.json");
+        //        foreach(var bug in BugsData)
+        //        {
+        //            data[bug.Key] = bug.Value;
+        //        }
+
+        //    }
+        //}
+
+        public void LoadCritters(object sender, StardewModdingAPI.Events.UpdateTickedEventArgs e)
         {
-            BugNetData data = _helper.Data.ReadJsonFile<BugNetData>("Assets/data.json");
-            AllBugs = new List<BugModel>();
-            foreach(BugModel bugModel in data.AllBugs)
+            BugNetData data = _helper.Data.ReadJsonFile<BugNetData>("Assets/critters.json");
+            AllCritters = new List<CritterEntry>();
+           //Dictionary<int, string> AssetData = new Dictionary<int, string>();
+            foreach (CritterEntry critter in data.AllCritters)
             {
+                AllCritters.AddOrReplace(critter);
+                CritterEntry.Register(critter);
+                var bugModel = new BugModel();
+                bugModel = critter.BugModel;
                 AllBugs.AddOrReplace(bugModel);
-                Texture2D texture = bugModel.getTexture();
-                var bugObj = new CustomObjectData(bugModel.FullId, bugModel.QuickItemDataString, texture, Color.White, bugModel.TileIndex, true, typeof(Bug));
-                Monitor.Log("Added: " + bugModel.Name);
+                CustomObjectData.newObject(bugModel.FullId,  bugModel.getTexture(), Color.White, bugModel.Name, bugModel.Description, bugModel.TileIndex,price:bugModel.Price, customType: typeof(Bug));
+                //AssetData[bugData.sdvId] = bugModel.QuickItemDataString;
+                Monitor.Log("Added: " + bugModel.Name + " id " + bugModel.FullId.ToString());
             }
 
-            Helper.Events.GameLoop.UpdateTicked -= LoadBugData;
+            //_helper.Data.WriteJsonFile("data\\bugs.json", AssetData);
+            Helper.Events.GameLoop.UpdateTicked -= LoadCritters;
         }
-        
+
 
         /*********
         ** Private methods
         *********/
         /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
         /// <param name="sender">The event sender.</param>
-        /// <param name="e">The event data.</param>
-        private void OnButtonPressed(object sender, ButtonPressedEventArgs e)
+        /// <param name="args">The event data.</param>
+        private void onLocationChanged(object sender, StardewModdingAPI.Events.WarpedEventArgs args)
         {
-            // ignore if player hasn't loaded a save yet
-            if (!Context.IsWorldReady)
+            if (Game1.CurrentEvent != null)
                 return;
-            return;
-            // print button presses to the console window
-            //this.Monitor.Log($"{Game1.player.currentLocation.} pressed {e.Button}.");
+
+            foreach (var entry in CritterEntry.critters)
+            {
+                Monitor.Log(entry.ToString());
+                for (int i = 0; i < entry.Value.SpawnAttempts; ++i)
+                {
+                    if (entry.Value.check(args.NewLocation))
+                    {
+                        var spot = entry.Value.pickSpot(args.NewLocation);
+                        if (spot == null)
+                            continue;
+
+                        args.NewLocation.addCritter(entry.Value.makeCritter(spot.Value));
+                    }
+                }
+            }
         }
-        
+
     }
 }

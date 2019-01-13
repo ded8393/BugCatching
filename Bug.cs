@@ -18,15 +18,16 @@ using StardewModdingAPI;
 
 namespace BugNet
 {
-    class Bug : PySObject
+    public class Bug : PySObject
     {
         internal IModHelper Helper = BugNetMod._helper;
         internal IMonitor Monitor = BugNetMod._monitor;
         internal List<BugModel> AllBugs = BugNetMod.AllBugs;
 
+        public CritterEntry Critter;
         public BugModel bugModel;
         public virtual Texture2D Texture { get; private set; }
-        public virtual Rectangle sourceRectangle => Game1.getSourceRectForStandardTileSheet(Texture, bugModel.TileIndex, tilesize.Width, tilesize.Height);
+        public virtual Rectangle sourceRectangle => Game1.getSourceRectForStandardTileSheet(Texture, bugModel.TileIndex, bugModel.OriginalWidth, bugModel.OriginalWidth);
 
         private Rectangle tilesize = new Rectangle(0, 0, 16, 16);
         private int tileIndex;
@@ -35,33 +36,31 @@ namespace BugNet
         public Bug()
         {
             syncObject = new PySync(this);
-            syncObject.init();
+            syncObject.init(); 
         }
 
-
         public Bug(CustomObjectData data)
+               :base(data)
         {
+            sObject = new SObject(data.sdvId, 1);
             this.data = data;
             checkData();
-            sObject = new SObject(data.sdvId, 1);
             build(AllBugs.Find(b => b.FullId == data.id)); 
            
         }
-        public Bug(CustomObjectData data, Vector2 tileLocation)
+
+        public Bug(CustomObjectData data, Vector2 tileLocation, int stack)
         {
-            sObject = new SObject(tileLocation, data.sdvId);
+            sObject = new SObject(tileLocation, data.sdvId, stack);
             this.data = data;
             checkData();
             build(AllBugs.Find(b => b.FullId == data.id));
         }
-        public Bug(Critter critter)
+
+        public Bug(CustomCritter critter)
         {
-            var critterType = critter.GetType().ToString().Split('.').Last();
-            bugModel = AllBugs.Find(b => b.Name == critterType);
-            //object privateFieldValue = critter.GetType().GetField("baseframe", BindingFlags.NonPublic | BindingFlags.Instance)
-            //                .GetValue(location);
-            bugModel.TileIndex = this.Helper.Reflection.GetField<int>(critter, "baseFrame").GetValue();
-            Monitor.Log(bugModel.TileIndex.ToString());
+            Critter = critter.data;
+            bugModel = Critter.BugModel;
             build(bugModel);
             checkData();
         }
@@ -75,31 +74,27 @@ namespace BugNet
         {
             return "Bug";
         }
+
+        public virtual string getCatName(int cat)
+        {
+            return "Bug";
+        }
+
         public override Color getCategoryColor()
         {
             return Color.LimeGreen;
         }
-
-        private SObject maxed(SObject obj)
-        {
-            SObject o = (SObject)obj.getOne();
-            o.Stack = int.MaxValue;
-            return o;
-        }
-        public virtual string getCatName(int cat)
-        {
-
-            return "Bug";
-        }
+        
         public override string DisplayName { get => name; set => base.DisplayName = value; }
 
         public override string getDescription()
         {
             return Game1.parseText(bugModel.Description, Game1.smallFont, Game1.tileSize * 4 + Game1.tileSize / 4);
         }
+
         public virtual void build(BugModel bugModel)
         {
-            Monitor.Log("building bug" + tileIndex);
+            Monitor.Log("building bug");
             if (syncObject == null)
             {
                 syncObject = new PySync(this);
@@ -112,17 +107,23 @@ namespace BugNet
                 data = CustomObjectData.collection.ContainsKey(bugModel.FullId) ? CustomObjectData.collection[bugModel.FullId] : new CustomObjectData(bugModel.FullId, bugModel.QuickItemDataString, bugModel.getTexture(), Color.White, bugModel.TileIndex, true, typeof(Bug));
             }
             
-            
+            if (sObject == null)
+            {
+                sObject = new SObject(data.sdvId, 1);
+            }
             Texture = bugModel.getTexture(Helper);
             id = bugModel.FullId;
             tileIndex = bugModel.TileIndex;
-            type.Value = "Bug";
-            parentSheetIndex.Value = data.sdvId;
             bigCraftable.Value = false;
-            tilesize = new Rectangle(0, 0, bugModel.OriginalWidth, bugModel.OriginalWidth);
+            type.Value = "Bug";
+            //Monitor.Log(data.sdvId.ToString());
+            ParentSheetIndex = data.sdvId;
+            price.Value = bugModel.Price;
+            bigCraftable.Value = false;
+            tilesize = new Rectangle(0, 0, 16, 16);
             boundingBox.Value = new Rectangle(0, 0, tilesize.Width, tilesize.Height);
             name = bugModel.Name;
-            Monitor.Log("bug built"+ tileIndex);
+            Monitor.Log("bug built"+ name);
         }
       
         public override Item getOne()
@@ -130,47 +131,21 @@ namespace BugNet
             Monitor.Log("getting one");
             return new Bug(data) { TileLocation = Vector2.Zero, name = name, Price = price, Quality = quality };
         }
-        //public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber, Color color, bool drawShadow)
-        //{
-        //    Monitor.Log("using drawInMenu " + tileIndex);
-        //    //spriteBatch.Draw(Texture, location + new Vector2(32f, 32f), new Rectangle?(Game1.getSquareSourceRectForNonStandardTileSheet(Texture, 16, 16, tileIndex)), color * transparency, 0.0f, new Vector2(8f, 8f), 4f * scaleSize, SpriteEffects.None, layerDepth);
-        //    spriteBatch.Draw(Texture, location + new Vector2((Game1.tileSize / 2), (Game1.tileSize / 2)), sourceRectangle, Color.White * transparency, 0.0f, new Vector2(8f,8f) * scaleSize, Game1.pixelZoom * (scaleSize < 0.2 ? scaleSize : scaleSize / 2.00f), SpriteEffects.None, layerDepth);
+       
+        public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber, Color color, bool drawShadow)
+        {
+            //Game1.objectSpriteSheet.Tag = bugModel.FullId;
+            spriteBatch.Draw(Texture, location + new Vector2((Game1.tileSize / 4 ), (Game1.tileSize / 4)), sourceRectangle, Color.White * transparency, 0.0f, new Vector2(8f, 8f), Game1.pixelZoom * (scaleSize < 0.2 ? scaleSize : scaleSize / 2.00f), SpriteEffects.None, layerDepth);
 
-        //}
+            if (drawStackNumber && maximumStackSize() > 1 && (scaleSize > 0.3 && Stack != int.MaxValue) && Stack > 1)
+                Utility.drawTinyDigits(stack, spriteBatch, location + new Vector2((Game1.tileSize - Utility.getWidthOfTinyDigitString(stack, 3f * scaleSize)) + 3f * scaleSize, (float)(Game1.tileSize - 18.0 * scaleSize + 2.0)), 3f * scaleSize, 1f, Color.White);
+        }
         public override void drawWhenHeld(SpriteBatch spriteBatch, Vector2 objectPosition, Farmer f)
         {
-            Monitor.Log("drawWhenHeld");
-            spriteBatch.Draw(Texture, objectPosition, sourceRectangle, Color.White, 0.0f, Vector2.Zero, Game1.pixelZoom, SpriteEffects.None, Math.Max(0.0f, (f.getStandingY() + 2) / 10000f));
+            //todo: could move this down a little more
+            spriteBatch.Draw(Texture, objectPosition + new Vector2((Game1.tileSize / 4), (Game1.tileSize / 4)) , sourceRectangle, Color.White, 0.0f, Vector2.Zero, Game1.pixelZoom * 0.25f, SpriteEffects.None, Math.Max(0.0f, (f.getStandingY() + 2) / 10000f));
         }
-        public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
-        {
-            Monitor.Log("using draw 4 arg");
-            Vector2 vector2 = getScale() * Game1.pixelZoom;
-            Vector2 local = Game1.GlobalToLocal(Game1.viewport, new Vector2((x * Game1.tileSize), (y * Game1.tileSize - Game1.tileSize)));
-            var r = data.sourceRectangle;
-            Rectangle destinationRectangle = new Rectangle((int)(local.X - vector2.X / 2.0) + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (int)(local.Y - vector2.Y / 2.0) + (shakeTimer > 0 ? Game1.random.Next(-1, 2) : 0), (int)((bugModel.OriginalWidth * 4) + (double)vector2.X), (int)((bugModel.OriginalWidth * 4) + vector2.Y / 2.0));
-            if (Texture is ScaledTexture2D s)
-            {
-                Rectangle tilesize = data.bigCraftable ? new Rectangle(0, 0, 16, 32) : new Rectangle(0, 0, 16, 16);
-                var newSR = new Rectangle?(new Rectangle((int)(r.X * s.Scale), (int)(r.Y * s.Scale), (int)(r.Width * s.Scale), (int)(r.Height * s.Scale)));
-                spriteBatch.Draw(s.STexture, destinationRectangle, newSR, Color.White * alpha, 0.0f, Vector2.Zero, SpriteEffects.None, (float)(Math.Max(0.0f, ((y + 1) * Game1.tileSize - Game1.pixelZoom * 6) / 10000f) + x * 9.99999974737875E-06));
-            }
-            else
-                //spriteBatch.Draw(Texture,destinationRectangle, r, Color.White * alpha, 0.0f,Vector2.Zero, SpriteEffects.None, (float)(Math.Max(0.0f, ((y + 1) * Game1.tileSize - Game1.pixelZoom * 6) / 10000f) + x * 9.99999974737875E-06));
-                base.draw(spriteBatch, x, y, alpha);
-        }
-        public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
-        {
-            if (data.texture is ScaledTexture2D)
-                draw(spriteBatch, xNonTile, yNonTile, alpha);
-            else
-                base.draw(spriteBatch, xNonTile, yNonTile, layerDepth, alpha);
-        }
-        //public override void draw(SpriteBatch spriteBatch, int xNonTile, int yNonTile, float layerDepth, float alpha = 1)
-        //{
-        //    Monitor.Log("using draw 5 args");
-        //    draw(spriteBatch, xNonTile, yNonTile, alpha);
-        //}
+
         //public virtual void actionWhenBeingHeld(Farmer who)
         //{
         //}
@@ -178,11 +153,17 @@ namespace BugNet
         //public virtual void actionWhenStopBeingHeld(Farmer who)
         //{
         //}
+
+
         public override ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
-        {
-            return (ICustomObject)CustomObjectData.collection[additionalSaveData["id"]].getObject();
-        }
-        
+         {
+              return (ICustomObject) CustomObjectData.collection[additionalSaveData["id"]].getObject();
+         }
+
+        public override bool canBeTrashed()
+         {
+                return true;
+         }
     }
    
 }

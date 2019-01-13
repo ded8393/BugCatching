@@ -8,13 +8,18 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomCritters
+namespace BugNet
 {
     public class CustomCritter : Critter
     {
-        private CritterEntry data;
+        public CritterEntry data;
         private LightSource light;
         private Random rand;
+
+        public CustomCritter(CritterEntry data)
+        {
+            this.data = data;
+        }
 
         public CustomCritter( Vector2 pos, CritterEntry data )
         {
@@ -22,8 +27,8 @@ namespace CustomCritters
             this.data = data;
             this.rand = new Random(((int)startingPosition.X) << 32 | ((int)startingPosition.Y));
 
-            var tex = Mod.instance.Helper.Content.Load<Texture2D>("Critters/" + data.Id + "/critter.png");
-            var texStr = Mod.instance.Helper.Content.GetActualAssetKey($"Critters/{data.Id}/critter.png");
+            var tex = BugNetMod.instance.Helper.Content.Load<Texture2D>(data.BugModel.TextureAsset);
+            var texStr = BugNetMod.instance.Helper.Content.GetActualAssetKey(data.BugModel.TextureAsset);
 
             this.baseFrame = Game1.random.Next(data.SpriteData.Variations) * (tex.Width / data.SpriteData.FrameWidth);
             

@@ -8,11 +8,11 @@ using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace CustomCritters
+namespace BugNet
 {
     public class CritterEntry
     {
-        public string Id { get; set; }
+        public BugModel BugModel { get; set; } = new BugModel();
         public class SpriteData_
         {
             public int Variations { get; set; }
@@ -307,6 +307,10 @@ namespace CustomCritters
             }
             return null;
         }
+        public virtual Critter makeCritter()
+        {
+            return new CustomCritter(this);
+        }
 
         public virtual Critter makeCritter(Vector2 pos)
         {
@@ -316,7 +320,7 @@ namespace CustomCritters
         internal static Dictionary<string, CritterEntry> critters = new Dictionary<string, CritterEntry>();
         public static void Register( CritterEntry entry )
         {
-            critters.Add(entry.Id, entry);
+            critters.Add(entry.BugModel.Id, entry);
         }
     }
 }

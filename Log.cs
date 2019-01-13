@@ -1,33 +1,33 @@
 ﻿using StardewModdingAPI;
 using System;
 
-namespace CustomCritters
+namespace BugNet
 {
     class Log
     {
         public static void trace(String str)
         {
-            Mod.instance.Monitor.Log(str, LogLevel.Trace);
+            BugNetMod.instance.Monitor.Log(str, LogLevel.Trace);
         }
 
         public static void debug(String str)
         {
-            Mod.instance.Monitor.Log(str, LogLevel.Debug);
+            BugNetMod.instance.Monitor.Log(str, LogLevel.Debug);
         }
 
         public static void info(String str)
         {
-            Mod.instance.Monitor.Log(str, LogLevel.Info);
+            BugNetMod.instance.Monitor.Log(str, LogLevel.Info);
         }
 
         public static void warn(String str)
         {
-            Mod.instance.Monitor.Log(str, LogLevel.Warn);
+            BugNetMod.instance.Monitor.Log(str, LogLevel.Warn);
         }
 
         public static void error(String str)
         {
-            Mod.instance.Monitor.Log(str, LogLevel.Error);
+            BugNetMod.instance.Monitor.Log(str, LogLevel.Error);
         }
     }
 }
