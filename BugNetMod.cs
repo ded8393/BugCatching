@@ -31,7 +31,7 @@ namespace BugNet
         public static BugNetData bugNetData;
         public static List<BugModel> AllBugs = new List<BugModel>();
         public static List<CritterEntry> AllCritters = new List<CritterEntry>();
-        public static Dictionary<int, string> AssetData = new Dictionary<int, string>();
+       // public static Dictionary<int, string> AssetData = new Dictionary<int, string>();
         public static string ModId;
         public static Mod instance;
         public override void Entry(IModHelper helper)
@@ -106,17 +106,12 @@ namespace BugNet
             foreach (var entry in CritterEntry.critters)
             {
                 Monitor.Log(entry.ToString());
-                for (int i = 0; i < entry.Value.SpawnAttempts; ++i)
+                var spawnLoc = entry.Value.attemptSpawn(args.NewLocation);
+                if (spawnLoc != null)
                 {
-                    if (entry.Value.check(args.NewLocation))
-                    {
-                        var spot = entry.Value.pickSpot(args.NewLocation);
-                        if (spot == null)
-                            continue;
-
-                        args.NewLocation.addCritter(entry.Value.makeCritter(spot.Value));
-                    }
+                    args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc.Value));
                 }
+                
             }
         }
 

@@ -135,7 +135,6 @@ namespace BugNet
                 List<Critter> critters = CritterLocations.GetCrittersAtGameLocation(location);
                 foreach (Critter critter in critters)
                 {
-                    Monitor.Log(critter.getBoundingBox(0, 0).ToString());
                     if (critter.getBoundingBox(0, 0).Intersects(rectangle))
                     {
                         Game1.addHUDMessage(new HUDMessage("babied", 3));

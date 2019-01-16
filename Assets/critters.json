@@ -48,37 +48,17 @@
           ]
         }
       },
-      "SpawnConditions": [
+      "SpawnConditions": 
         {
-          "Not": false,
           "Seasons": [ "spring", "summer", "fall" ],
           "Locations": [ "Farm" ],
           "MinTimeOfDay": 600,
           "MaxTimeOfDay": 1800,
           "ChancePerTile": 0.5,
           "RequireDarkOut": false,
-          "AllowRain": false,
-          "ChildrenCombine": "and",
-          "Children": []
-        }
-      ],
-      "SpawnLocations": [
-        {
-          "LocationType": "object",
-          "Conditions": [
-            {
-              "Not": false,
-              "Chance": 0.90,
-              "Variable": "name",
-              "RequireNotNull": false,
-              "Is": null,
-              "ValueEquals": "Bee House",
-              "ChildrenCombine": "and",
-              "Children": []
-            }
-          ]
-        }
-      ],
+          "AllowRain": false
+        },
+
       "SpawnAttempts": 9,
       "Behavior": {
         "Type": "patrol",
@@ -118,7 +98,7 @@
         "Name": "Inchworm",
         "Description": "only an inch long",
         "TextureAsset": "Assets/Inchworm.png",
-        "TileIndex": 0,
+        "TileIndex": 2,
         "Price":  100,
         "OriginalWidth": 32,
         "QuickItemDataString": "Inchworm/100/-50/Bug/only an inch long/true/true/0/Inchworm"
@@ -161,9 +141,8 @@
           ]
         }
       },
-      "SpawnConditions": [
+      "SpawnConditions": 
         {
-          "Not": false,
           "Seasons": [ "spring", "summer", "fall" ],
           "Locations": [ "Farm" ],
           "MinTimeOfDay": 600,
@@ -171,27 +150,9 @@
           "ChancePerTile": 1,
           "RequireDarkOut": false,
           "AllowRain": false,
-          "ChildrenCombine": "and",
-          "Children": []
-        }
-      ],
-      "SpawnLocations": [
-        {
-          "LocationType": "object",
-          "Conditions": [
-            {
-              "Not": false,
-              "Chance": 0.90,
-              "Variable": "name",
-              "RequireNotNull": false,
-              "Is": null,
-              "ValueEquals": "Bee House",
-              "ChildrenCombine": "and",
-              "Children": []
-            }
-          ]
-        }
-      ],
+
+        },
+      
       "SpawnAttempts": 9,
       "Behavior": {
         "Type": "patrol",
@@ -273,37 +234,25 @@
           ]
         }
       },
-      "SpawnConditions": [
-        {
-          "Not": false,
-          "Seasons": [ "spring", "summer", "fall" ],
-          "Locations": [ "Farm" ],
-          "MinTimeOfDay": 600,
-          "MaxTimeOfDay": 1800,
-          "ChancePerTile": 0.1,
-          "RequireDarkOut": false,
-          "AllowRain": false,
-          "ChildrenCombine": "and",
-          "Children": []
-        }
-      ],
-      "SpawnLocations": [
-        {
-          "LocationType": "object",
-          "Conditions": [
-            {
-              "Not": false,
-              "Chance": 0.90,
-              "Variable": "name",
-              "RequireNotNull": false,
-              "Is": null,
-              "ValueEquals": "Bee House",
-              "ChildrenCombine": "and",
-              "Children": []
-            }
-          ]
-        }
-      ],
+      "SpawnConditions": {
+        "Seasons": [ "spring", "summer", "fall" ],
+        "Locations": [ "Farm" ],
+        "MinTimeOfDay": 600,
+        "MaxTimeOfDay": 1800,
+        "ChancePerTile": 0.1,
+        "RequireDarkOut": false,
+        "AllowRain": false,
+        "Attractors": [
+          {
+            "AttractorType": "terrainfeature",
+            "AttractorName":  "Tree",
+            "PropertyName": "treeType",
+            "IsValue": "3"
+          }
+        ]
+        },
+      
+
       "SpawnAttempts": 9,
       "Behavior": {
         "Type": "patrol",
