@@ -13,6 +13,7 @@ namespace BugNet
 {
     public class SpawnConditions
     {
+        public double Rarity { get; set; } = 1.00;
         public string[] Seasons { get; set; } = new string[0];
         public string[] Locations { get; set; } = new string[0];
         public int MinTimeOfDay { get; set; } = -1;
@@ -23,15 +24,17 @@ namespace BugNet
 
         public class Attractor
         {
+            private SpawnConditions spawnConditions;
             public string AttractorType { get; set; } = "random";
             public string AttractorName { get; set; } = "";
             public string PropertyName { get; set; } = "";
             public string IsType { get; set; } = "";
             public string IsValue { get; set; } = "";
-            
-            //derived from pickSpot
-            public Vector2? checkLocation(GameLocation loc)
+
+            //modified from critterEntry.pickSpot
+            public Vector2? checkLocation(SpawnConditions spawnConditions, GameLocation loc)
             {
+                this.spawnConditions = spawnConditions;
                 if (AttractorType == "random")
                 {
                     if (checkAttractor(null))
@@ -44,12 +47,9 @@ namespace BugNet
                     keys.Shuffle();
                     foreach (var key in keys)
                     {
-                        // if (IsType != null && IsType != "" && !o.GetType().IsInstanceOfType(Type.GetType(IsType)))
                         string featureName = loc.terrainFeatures[key].GetType().ToString().Split('.').Last().ToString();
-                        BugNetMod.instance.Monitor.Log(featureName + " is featurename " + AttractorName + " is attractorname");
                         if (AttractorName != null && AttractorName != "" && AttractorName == featureName)
                         {
-                            BugNetMod.instance.Monitor.Log("terrain feature" + loc.terrainFeatures[key].GetType().ToString());
                             if (checkAttractor(loc.terrainFeatures[key]))
                                 return key * Game1.tileSize;
                         }
@@ -63,30 +63,29 @@ namespace BugNet
                     keys.Shuffle();
                     foreach (var key in keys)
                     {
-                        BugNetMod.instance.Monitor.Log(key.ToString() + "  location  " + loc.objects[key].displayName);
-
-                        if (checkAttractor(loc.objects[key]))
-                            return key * Game1.tileSize;
+                        string featureName = loc.objects[key].displayName;
+                        if (AttractorName != null && AttractorName != "" && AttractorName == featureName)
+                        {
+                            if (checkAttractor(loc.objects[key]))
+                                return key * Game1.tileSize;
+                        }
                     }
 
                     return null;
                 }
                 else throw new ArgumentException("Bad location type");
             }
-            public bool checkAttractor(object obj)
+            public bool checkAttractor( object obj)
             {
-                BugNetMod.instance.Monitor.Log(obj.ToString() + "is obj");
                 bool ret = true;
 
-                //if (Chance != 1.0 && Game1.random.NextDouble() > Chance)
-                //    ret = false;
+                if (spawnConditions.Rarity != 1.0 && Game1.random.NextDouble() > spawnConditions.Rarity)
+                    ret = false;
                 if (PropertyName != null && PropertyName != "")
                 {
-                    BugNetMod.instance.Monitor.Log("PropertyName: " + PropertyName);
                     string[] toks = PropertyName.Split('.');
 
                     var o = obj;
-                    BugNetMod.instance.Monitor.Log(o.GetType().ToString());
 
                     for (int i = 0; i < toks.Length; ++i)
                     {
@@ -100,7 +99,6 @@ namespace BugNet
                         }
 
                         o = f.GetValue(o);
-                        BugNetMod.instance.Monitor.Log(o.ToString());
                     }
 
                     if (o != null)
@@ -139,7 +137,7 @@ namespace BugNet
             {
                 foreach(Attractor attractor in Attractors)
                 {
-                    var spawnLocation = attractor.checkLocation(location);
+                    var spawnLocation = attractor.checkLocation(this, location);
                     if (spawnLocation != null)
                         return spawnLocation;
                 }

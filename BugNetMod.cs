@@ -105,10 +105,11 @@ namespace BugNet
 
             foreach (var entry in CritterEntry.critters)
             {
-                Monitor.Log(entry.ToString());
                 var spawnLoc = entry.Value.attemptSpawn(args.NewLocation);
                 if (spawnLoc != null)
                 {
+                    Monitor.Log(entry.Value.BugModel.Name + " at location " + spawnLoc.Value.ToString());
+
                     args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc.Value));
                 }
                 

@@ -116,25 +116,21 @@ namespace BugNet
             tileIndex = bugModel.TileIndex;
             bigCraftable.Value = false;
             type.Value = "Bug";
-            //Monitor.Log(data.sdvId.ToString());
             ParentSheetIndex = data.sdvId;
             price.Value = bugModel.Price;
             bigCraftable.Value = false;
             tilesize = new Rectangle(0, 0, 16, 16);
             boundingBox.Value = new Rectangle(0, 0, tilesize.Width, tilesize.Height);
             name = bugModel.Name;
-            Monitor.Log("bug built"+ name);
         }
       
         public override Item getOne()
         {
-            Monitor.Log("getting one");
             return new Bug(data) { TileLocation = Vector2.Zero, name = name, Price = price, Quality = quality };
         }
        
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber, Color color, bool drawShadow)
         {
-            //Game1.objectSpriteSheet.Tag = bugModel.FullId;
             spriteBatch.Draw(Texture, location + new Vector2((Game1.tileSize / 2 ), (Game1.tileSize / 2)), sourceRectangle, Color.White * transparency, 0.0f, new Vector2(16f,16f), Game1.pixelZoom * 0.25f, SpriteEffects.None, layerDepth);
 
             if (drawStackNumber && maximumStackSize() > 1 && (scaleSize > 0.3 && Stack != int.MaxValue) && Stack > 1)

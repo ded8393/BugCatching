@@ -48,16 +48,20 @@
           ]
         }
       },
-      "SpawnConditions": 
-        {
-          "Seasons": [ "spring", "summer", "fall" ],
-          "Locations": [ "Farm" ],
-          "MinTimeOfDay": 600,
-          "MaxTimeOfDay": 1800,
-          "ChancePerTile": 0.5,
-          "RequireDarkOut": false,
-          "AllowRain": false
-        },
+      "SpawnConditions": {
+        "Seasons": [ "spring", "summer", "fall" ],
+        "Locations": [ "Farm" ],
+        "MinTimeOfDay": 600,
+        "MaxTimeOfDay": 1800,
+        "Rarity": 0.5,
+        "RequireDarkOut": false,
+        "AllowRain": false,
+        "Attractors": [
+          {
+            "AttractorType": "random"
+          }
+        ]
+      },
 
       "SpawnAttempts": 9,
       "Behavior": {
@@ -141,17 +145,22 @@
           ]
         }
       },
-      "SpawnConditions": 
-        {
-          "Seasons": [ "spring", "summer", "fall" ],
-          "Locations": [ "Farm" ],
-          "MinTimeOfDay": 600,
-          "MaxTimeOfDay": 1800,
-          "ChancePerTile": 1,
-          "RequireDarkOut": false,
-          "AllowRain": false,
+      "SpawnConditions": {
+        "Seasons": [ "spring", "summer", "fall" ],
+        "Locations": [ "Farm" ],
+        "MinTimeOfDay": 600,
+        "MaxTimeOfDay": 1800,
+        "Rarity": 1.0,
+        "RequireDarkOut": false,
+        "AllowRain": false,
+        "Attractors": [
+          {
+            "AttractorType": "object",
+            "AttractorName": "Chest"
+          }
+        ]
 
-        },
+      },
       
       "SpawnAttempts": 9,
       "Behavior": {
@@ -235,22 +244,22 @@
         }
       },
       "SpawnConditions": {
+        "Rarity":  0.01,
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
         "MinTimeOfDay": 600,
         "MaxTimeOfDay": 1800,
-        "ChancePerTile": 0.1,
         "RequireDarkOut": false,
         "AllowRain": false,
         "Attractors": [
           {
             "AttractorType": "terrainfeature",
-            "AttractorName":  "Tree",
+            "AttractorName": "Tree",
             "PropertyName": "treeType",
             "IsValue": "3"
           }
         ]
-        },
+      },
       
 
       "SpawnAttempts": 9,

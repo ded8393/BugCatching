@@ -77,13 +77,12 @@ namespace BugNet
 
         public virtual Vector2? attemptSpawn( GameLocation loc )
         {
-            int attempts = SpawnAttempts;
-            while (attempts > 0)
+            
+            for(int attempts = SpawnAttempts ; attempts > 0 ; attempts--)
             {
                 var spawnSpot = SpawnConditions.checkLocation(loc);
                 if (spawnSpot != null)
                     return spawnSpot;
-                attempts--;
             }
 
             return null;

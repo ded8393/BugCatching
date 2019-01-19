@@ -28,7 +28,6 @@ namespace BugNet
         public int TileIndex { get; set; } = 0;
         public int OriginalWidth { get; set; } = 16;
         public int Price { get; set; } = 100;
-        public double Rarity { get; set; } = 0.5;
         public string TimeOfDay { get; set; } = null;
         public static Texture2D texture { get; set; }
 
