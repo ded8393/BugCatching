@@ -28,15 +28,13 @@ namespace BugNet
         public int TileIndex { get; set; } = 0;
         public int OriginalWidth { get; set; } = 16;
         public int Price { get; set; } = 100;
-        public string TimeOfDay { get; set; } = null;
         public static Texture2D texture { get; set; }
 
         public Texture2D getTexture(IModHelper helper = null)
         {
-
-            if (helper == null)
+             if (helper == null)
                 helper = Helper;
-                
+
             texture = Helper.Content.Load<Texture2D>(TextureAsset, ContentSource.ModFolder);
             Monitor.Log("got Texture");
             return texture;

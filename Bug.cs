@@ -20,7 +20,7 @@ namespace BugNet
 {
     public class Bug : PySObject
     {
-        internal IModHelper Helper = BugNetMod._helper;
+        internal static IModHelper Helper = BugNetMod._helper;
         internal IMonitor Monitor = BugNetMod._monitor;
         internal List<BugModel> AllBugs = BugNetMod.AllBugs;
 
@@ -32,6 +32,7 @@ namespace BugNet
         private Rectangle tilesize = new Rectangle(0, 0, 16, 16);
         private int tileIndex;
         private string id;
+        private bool isPlain = false;
 
         public Bug()
         {
@@ -82,7 +83,7 @@ namespace BugNet
 
         public override Color getCategoryColor()
         {
-            return Color.LimeGreen;
+            return Color.DarkOrchid;
         }
         
         public override string DisplayName { get => name; set => base.DisplayName = value; }
@@ -113,6 +114,8 @@ namespace BugNet
             }
             Texture = bugModel.getTexture(Helper);
             id = bugModel.FullId;
+            if (id.Contains("Plain."))
+                isPlain = true;
             tileIndex = bugModel.TileIndex;
             bigCraftable.Value = false;
             type.Value = "Bug";
@@ -131,7 +134,10 @@ namespace BugNet
        
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber, Color color, bool drawShadow)
         {
-            spriteBatch.Draw(Texture, location + new Vector2((Game1.tileSize / 2 ), (Game1.tileSize / 2)), sourceRectangle, Color.White * transparency, 0.0f, new Vector2(16f,16f), Game1.pixelZoom * 0.25f, SpriteEffects.None, layerDepth);
+            if (isPlain)
+                spriteBatch.Draw(Texture, location + new Vector2((Game1.tileSize), (Game1.tileSize)), sourceRectangle, Color.White * transparency, 0.0f, new Vector2(16f, 16f), Game1.pixelZoom, SpriteEffects.None, layerDepth);
+            else
+                spriteBatch.Draw(Texture, location + new Vector2((Game1.tileSize / 2 ), (Game1.tileSize / 2)), sourceRectangle, Color.White * transparency, 0.0f, new Vector2(16f,16f), Game1.pixelZoom * 0.25f, SpriteEffects.None, layerDepth);
 
             if (drawStackNumber && maximumStackSize() > 1 && (scaleSize > 0.3 && Stack != int.MaxValue) && Stack > 1)
                 Utility.drawTinyDigits(stack, spriteBatch, location + new Vector2((Game1.tileSize - Utility.getWidthOfTinyDigitString(stack, 3f * scaleSize)) + 3f * scaleSize, (float)(Game1.tileSize - 18.0 * scaleSize + 2.0)), 3f * scaleSize, 1f, Color.White);

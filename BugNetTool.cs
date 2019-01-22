@@ -13,6 +13,7 @@ using Critter = StardewValley.BellsAndWhistles.Critter;
 using PyTK.CustomElementHandler;
 using PyTK.Types;
 using customObj = PyTK.CustomElementHandler.CustomObjectData;
+using SpaceCore;
 
 using StardewModdingAPI;
 
@@ -100,9 +101,9 @@ namespace BugNet
             Name = "Bug Net";
             description = "catch critters";
 
-            InitialParentTileIndex = 77;
-            CurrentParentTileIndex = 77;
-            IndexOfMenuItemView = 0;
+            InitialParentTileIndex = 504;
+            CurrentParentTileIndex = 504;
+            IndexOfMenuItemView = 5;
             UpgradeLevel = 4;
 
             InstantUse = false;
@@ -112,16 +113,20 @@ namespace BugNet
 
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber, Color color, bool drawShadow)
         {
-            spriteBatch.Draw(texture, location + new Vector2(32f, 32f), new Rectangle?(Game1.getSquareSourceRectForNonStandardTileSheet(texture, 16, 16, this.IndexOfMenuItemView)), color * transparency, 0.0f, new Vector2(8f, 8f), 4f * scaleSize, SpriteEffects.None, layerDepth);
+            spriteBatch.Draw(texture, location + new Vector2((Game1.tileSize / 2), 0), new Rectangle?(Game1.getSquareSourceRectForNonStandardTileSheet(texture, 16, 32, IndexOfMenuItemView)), color * transparency, 0.0f, new Vector2(8f, 16f), 4f * scaleSize, SpriteEffects.None, layerDepth);
 
             if (inUse)
             {
                 StardewValley.Farmer f = Game1.player;
-                Vector2 vector = f.getLocalPosition(Game1.viewport) + f.jitter + f.armOffset;
-                int num = (int)vector.Y - ((Game1.tileSize * 5) / 2);
-                spriteBatch.Draw(texture, new Vector2(vector.X, (float)num), new Rectangle?(Game1.getSquareSourceRectForNonStandardTileSheet(Game1.toolSpriteSheet, 16, 16, this.IndexOfMenuItemView)), color * transparency, 0.0f, new Vector2(8f, 8f), 4f * scaleSize, SpriteEffects.None, Math.Max(0f, (float)(f.getStandingY() + Game1.tileSize / 2) / 10000f));
+                this.Update(f.FacingDirection, 0, f);
+           
             }
 
+        }
+
+        public override void draw(SpriteBatch b)
+        {
+            base.draw(b);
         }
 
         public override bool beginUsing(GameLocation location, int x, int y, StardewValley.Farmer who)
@@ -132,17 +137,20 @@ namespace BugNet
             Rectangle rectangle = new Rectangle(x - 32, y - 32, 64, 64);
             if (!caughtBug)
             {
-                List<Critter> critters = CritterLocations.GetCrittersAtGameLocation(location);
-                foreach (Critter critter in critters)
-                {
-                    if (critter.getBoundingBox(0, 0).Intersects(rectangle))
+                CritterLocations checkLocation = new CritterLocations(location);
+                List<Critter> critters = new List<Critter>();
+                critters = checkLocation.GetCritters();
+                if (critters.Count > 0) 
+                    foreach (Critter critter in critters)
                     {
-                        Game1.addHUDMessage(new HUDMessage("babied", 3));
-                        BugInNet = critter;
-                        caughtBug = true;
-                        break;
+                        if (critter.getBoundingBox(0, 0).Intersects(rectangle))
+                        {
+                            //Game1.addHUDMessage(new HUDMessage("babied", 3));
+                            BugInNet = critter;
+                            caughtBug = true;
+                            break;
+                        }
                     }
-                }
             }
            
 
@@ -157,17 +165,7 @@ namespace BugNet
 
             if ( caughtBug && BugInNet != null)
             {
-
-                var bugName = BugInNet.GetType().ToString();
-                
-
-                string msg = "location: " + location.GetType().ToString() + ", critter: " + bugName;
-
-                Game1.showRedMessage(msg);
-
-                getBugFromNet(location, who);
-                
-                
+                getBugFromNet(location, who); 
             }
             
            
@@ -185,9 +183,11 @@ namespace BugNet
                 bug = bugApi.getBugFromCritterType(BugInNet);
 
             }
-        
-            CritterLocations.RemoveCritterFromGameLocation(location, BugInNet);
+            CritterLocations critterLocations = new CritterLocations(location);
+            critterLocations.RemoveThisCritter(BugInNet);
             who.addItemByMenuIfNecessary((Item) bug.getOne());
+            Game1.player.AddCustomSkillExperience(BugNetMod.skill, bug.bugModel.Price);
+            BugNetMod.instance.Monitor.Log("player experience: " + Game1.player.GetCustomSkillExperience(BugNetMod.skill).ToString());
             BugInNet = (Critter) null;
             caughtBug = false;
         }

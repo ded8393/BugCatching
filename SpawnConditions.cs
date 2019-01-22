@@ -81,23 +81,22 @@ namespace BugNet
 
                 if (spawnConditions.Rarity != 1.0 && Game1.random.NextDouble() > spawnConditions.Rarity)
                     ret = false;
+
                 if (PropertyName != null && PropertyName != "")
                 {
-                    string[] toks = PropertyName.Split('.');
-
                     var o = obj;
-
+                    string[] toks = PropertyName.Split('.');
                     for (int i = 0; i < toks.Length; ++i)
                     {
                         if (o == null)
                             break;
+
                         var f = o.GetType().GetField(toks[i], BindingFlags.NonPublic | BindingFlags.Public | BindingFlags.Instance);
                         if (f == null)
                         {
                             o = null;
                             break;
                         }
-
                         o = f.GetValue(o);
                     }
 
@@ -108,12 +107,7 @@ namespace BugNet
                         else if (IsValue != null && IsValue != "" && !o.ToString().Equals(IsValue))
                             ret = false;
                     }
-                    //else if (RequireNotNull)
-                    //    ret = false;
-                    //} 
                 }
-
-
                 return ret;
             }
 

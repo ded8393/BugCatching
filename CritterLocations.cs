@@ -14,38 +14,51 @@ using StardewModdingAPI.Framework.ModHelpers;
 
 namespace BugNet
 {
-    public static class CritterLocations
+    public class CritterLocations
     {
+        public GameLocation Location = new GameLocation();
+
         private static IModHelper Helper;
 
         public static void init(IModHelper helper)
         {
             Helper = helper;
         }
-
-        public static List<Critter> critterList;
-        static public List<Critter> GetCrittersAtGameLocation(GameLocation location)
+        public CritterLocations(GameLocation gameLocation)
         {
-            object privateFieldValue = location.GetType().GetField("critters", BindingFlags.NonPublic | BindingFlags.Instance)
-                            .GetValue(location);
+            //foreach (GameLocation location in Helper.Multiplayer.GetActiveLocations())
+            //{
+            //    if (location.uniqueName == gameLocation.uniqueName)
+            //        Location = location;
+            //    BugNetMod.instance.Monitor.Log(location.uniqueName.ToString() + " " + gameLocation.uniqueName.ToString());
+            //}
+            // Location = gameLocation;
+            Location = Game1.getLocationFromName(gameLocation.Name);
+            //todo check for return null
+        }
+
+        public List<Critter> critterList;
+        public List<Critter> GetCritters()
+        {
+            object privateFieldValue = this.Location.GetType().GetField("critters", BindingFlags.NonPublic | BindingFlags.Instance)
+                            .GetValue(this.Location);
             return (List<Critter>)privateFieldValue;
-
         }
-        public static void UpdateCrittersAtGameLocation(GameLocation location, List<Critter> UpdatedCritterList)
+        public void UpdateCritters( List<Critter> UpdatedCritterList)
         {
-            location.GetType().GetField("critters", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(location, UpdatedCritterList);
+            this.Location.GetType().GetField("critters", BindingFlags.NonPublic | BindingFlags.Instance).SetValue(this.Location, UpdatedCritterList);
         }
 
-        public static void RemoveCritterFromGameLocation(GameLocation location, Critter critter)
+        public void RemoveThisCritter(Critter critter)
         {
-            List<Critter> newCritterList = GetCrittersAtGameLocation(location);
+            List<Critter> newCritterList = GetCritters();
             newCritterList.Remove(critter);
-            UpdateCrittersAtGameLocation(location, newCritterList);
+            UpdateCritters(newCritterList);
         }
-        public static void AddCritterToGameLocation(GameLocation location, Critter critter)
-        {
-            location.addCritter(critter);
-        }
+        //public void AddCritterToGameLocation(GameLocation location, Critter critter)
+        //{
+        //    location.addCritter(critter);
+        //}
 
         
         //public Dictionary<string, List<Critter>> getCritterDictionary(IModHelper helper)
