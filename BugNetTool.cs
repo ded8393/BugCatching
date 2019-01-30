@@ -17,45 +17,30 @@ using SpaceCore;
 
 using StardewModdingAPI;
 
-namespace BugNet
+namespace BugCatching
 {
     public class BugNetTool : Hoe, ISaveElement, ICustomObject
     {
-        internal IMonitor Monitor = BugNetMod._monitor;
+        internal IMonitor Monitor = BugCatchingMod._monitor;
 
-        internal List<BugModel> AllBugs = BugNetMod.AllBugs;
+        internal List<BugModel> AllBugs = BugCatchingMod.AllBugs;
         internal static Texture2D texture;
         private bool inUse;
         private static bool caughtBug;
         private static Critter BugInNet;
 
-        
-
-        public Dictionary<string, string> getAdditionalSaveData()
+        public override string DisplayName { get => "Bug Net"; set => base.DisplayName = "Bug Net"; }
+        public override string getDescription()
         {
-            Dictionary<string, string> savedata = new Dictionary<string, string>();
-            savedata.Add("name", Name);
-            return savedata;
+            string text = description;
+            SpriteFont smallFont = Game1.smallFont;
+            int width = Game1.tileSize * 4 + Game1.tileSize / 4;
+            return Game1.parseText(text, smallFont, width);
         }
 
-        public dynamic getReplacement()
+        internal static void loadTextures()
         {
-            //BugNetTool replacement = new BugNetTool();
-            //return replacement;
-            Chest replacement = new Chest(true);
-            return replacement;
-        }
-
-        public void rebuild(Dictionary<string, string> additionalSaveData, object replacement)
-        {
-            build();
-            Chest chest = (Chest)replacement;
-
-        }
-
-        public BugNetTool(CustomObjectData data)
-            : this()
-        {
+            texture = BugCatchingMod._helper.Content.Load<Texture2D>(@"Assets/bugnet.png");
         }
 
         public BugNetTool()
@@ -64,34 +49,7 @@ namespace BugNet
             build();
         }
 
-        public override bool canBeTrashed()
-        {
-            return true;
-        }
-
-        internal static void loadTextures()
-        {
-            texture = BugNetMod._helper.Content.Load<Texture2D>(@"Assets/bugnet.png");
-           
-        }
-
-
-        public override bool actionWhenPurchased()
-        {
-            return true;
-        }
-
-        public override Item getOne()
-        {
-            return new BugNetTool();
-        }
-        
-
-        public override void setNewTileIndexForUpgradeLevel()
-        {
-        }
-
-        public override string DisplayName { get => "Bug Net"; set => base.DisplayName = "Bug Net"; }
+        public BugNetTool(CustomObjectData data) : this() { }
 
         private void build()
         {
@@ -111,17 +69,38 @@ namespace BugNet
             inUse = false;
         }
 
+        public override void setNewTileIndexForUpgradeLevel()
+        {
+        }
+
+        public override Item getOne()
+        {
+            return new BugNetTool();
+        }
+
+        public override bool canBeTrashed()
+        {
+            return true;
+        }
+
+        public override bool actionWhenPurchased()
+        {
+            return true;
+        }
+
+        
+        
+
+
+
+       
+        
+
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber, Color color, bool drawShadow)
         {
             spriteBatch.Draw(texture, location + new Vector2((Game1.tileSize / 2), 0), new Rectangle?(Game1.getSquareSourceRectForNonStandardTileSheet(texture, 16, 32, IndexOfMenuItemView)), color * transparency, 0.0f, new Vector2(8f, 16f), 4f * scaleSize, SpriteEffects.None, layerDepth);
-
-            if (inUse)
-            {
-                StardewValley.Farmer f = Game1.player;
-                this.Update(f.FacingDirection, 0, f);
-           
-            }
-
+            StardewValley.Farmer f = Game1.player;
+            this.Update(f.FacingDirection, 0, f);
         }
 
         public override void draw(SpriteBatch b)
@@ -170,24 +149,24 @@ namespace BugNet
             
            
         }
+
         public static void getBugFromNet(GameLocation location, StardewValley.Farmer who)
         {
             Bug bug;
         
-            if (BugInNet.GetType().ToString() == "BugNet.CustomCritter")
+            if (BugInNet.GetType().ToString() == "BugCatching.CustomCritter")
             {
                 bug = new Bug((CustomCritter)BugInNet);
             } else
             {
-                BugApi bugApi = new BugApi();
-                bug = bugApi.getBugFromCritterType(BugInNet);
+                bug = BugApi.getBugFromCritterType(BugInNet);
 
             }
             CritterLocations critterLocations = new CritterLocations(location);
             critterLocations.RemoveThisCritter(BugInNet);
             who.addItemByMenuIfNecessary((Item) bug.getOne());
-            Game1.player.AddCustomSkillExperience(BugNetMod.skill, bug.bugModel.Price);
-            BugNetMod.instance.Monitor.Log("player experience: " + Game1.player.GetCustomSkillExperience(BugNetMod.skill).ToString());
+            Game1.player.AddCustomSkillExperience(BugCatchingMod.skill, bug.bugModel.Price);
+            BugCatchingMod.instance.Monitor.Log("player experience: " + Game1.player.GetCustomSkillExperience(BugCatchingMod.skill).ToString());
             BugInNet = (Critter) null;
             caughtBug = false;
         }
@@ -205,19 +184,29 @@ namespace BugNet
             inUse = false;
             return base.onRelease(location, x, y, who);
         }
-        public override string getDescription()
-        {  
-            string text = description;
-            SpriteFont smallFont = Game1.smallFont;
-            int width = Game1.tileSize * 4 + Game1.tileSize / 4;
-            return Game1.parseText(text, smallFont, width);
-        }
+       
 
         public override void leftClick(Farmer who)
         {
             base.leftClick(who);
         }
 
+        public Dictionary<string, string> getAdditionalSaveData()
+        {
+            Dictionary<string, string> savedata = new Dictionary<string, string>();
+            savedata.Add("name", Name);
+            return savedata;
+        }
+
+        public dynamic getReplacement()
+        {
+            return new Chest(true);
+        }
+
+        public void rebuild(Dictionary<string, string> additionalSaveData, object replacement)
+        {
+            build();
+        }
         public ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
         {
             return new BugNetTool();

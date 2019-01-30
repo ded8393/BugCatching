@@ -1,9 +1,9 @@
 ﻿{
-  "Name": "BugNetTool",
+  "Name": "BugCatching",
   "Author": "ded",
   "Version": "1.0.0",
   "Description": "Adds bug catching game play",
-  "UniqueID": "ded.BugNet",
+  "UniqueID": "ded.BugCatching",
   "EntryDll": "BugCatching.dll",
   "MinimumApiVersion": "2.9",
   "UpdateKeys": [],

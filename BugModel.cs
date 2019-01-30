@@ -7,19 +7,20 @@ using Critter = StardewValley.BellsAndWhistles.Critter;
 using PyTK.Types;
 using PyTK.Extensions;
 
-namespace BugNet
+namespace BugCatching
 {
     public class BugModel
     {
-        internal IModHelper Helper = BugNetMod._helper;
-        internal IMonitor Monitor = BugNetMod._monitor;
+        internal IModHelper Helper = BugCatchingMod._helper;
+        internal IMonitor Monitor = BugCatchingMod._monitor;
 
+        private string ModId = BugCatchingMod.ModId;
         public string Name { get; set; }
         public string Id { get; set; }
         public string FullId
         {
             get {
-                return $"ded.BugNet.{Id}";
+                return $"{ModId}.{Id}";
             }
         } 
         public string Description { get; set;  }

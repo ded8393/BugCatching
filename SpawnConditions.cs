@@ -9,11 +9,11 @@ using Microsoft.Xna.Framework;
 
 using StardewValley;
 
-namespace BugNet
+namespace BugCatching
 {
     public class SpawnConditions
     {
-        public double Rarity { get; set; } = 1.00;
+        public double Rarity { get; set; } = 1.0;
         public string[] Seasons { get; set; } = new string[0];
         public string[] Locations { get; set; } = new string[0];
         public int MinTimeOfDay { get; set; } = -1;

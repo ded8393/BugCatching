@@ -58,12 +58,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Behavior.cs" />
     <Compile Include="Bug.cs" />
     <Compile Include="BugApi.cs" />
     <Compile Include="BugCatchingSkill.cs" />
     <Compile Include="BugModel.cs" />
     <Compile Include="BugNetData.cs" />
-    <Compile Include="BugNetMod.cs" />
+    <Compile Include="BugCatchingMod.cs" />
     <Compile Include="BugNetTool.cs" />
     <Compile Include="CritterEntry.cs" />
     <Compile Include="CritterLocations.cs" />

@@ -16,11 +16,11 @@ using StardewValley;
 using Critter = StardewValley.BellsAndWhistles.Critter;
 using SpaceCore;
 
-namespace BugNet
+namespace BugCatching
 {
     /// <summary>The mod entry point.</summary>
             
-    public class BugNetMod : Mod
+    public class BugCatchingMod : Mod
     {
         /*********
         ** Public methods
@@ -50,6 +50,7 @@ namespace BugNet
 
             BugNetTool bugnet = new BugNetTool();
             new InventoryItem(bugnet, 100).addToNPCShop("Pierre");
+            // todo change to .Tool v
             CustomObjectData.newObject(ModId + "Tool", BugNetTool.texture, Color.White, "Bug Net", "Wonder what I can do with this?", 5, customType: typeof(BugNetTool));
 
 
@@ -152,13 +153,18 @@ namespace BugNet
 
             foreach (var entry in CritterEntry.critters)
             {
-                var spawnLoc = entry.Value.attemptSpawn(args.NewLocation);
-                if (spawnLoc != null)
+                var spawnLocs = entry.Value.attemptSpawn(args.NewLocation);
+                if (spawnLocs.Count != 0)
                 {
-                    Monitor.Log(entry.Value.BugModel.Name + " at location " + spawnLoc.Value.ToString());
-                    // this.map.GetLayer("Back").Tiles[xLocation, yLocation].Properties.Add("Treasure", new PropertyValue("Object " + (object) "bug"));
+                    foreach (var spawnLoc in spawnLocs)
+                    {
+                        
+                        Monitor.Log(entry.Value.BugModel.Name + " at location " + spawnLoc.ToString());
+                        // this.map.GetLayer("Back").Tiles[xLocation, yLocation].Properties.Add("Treasure", new PropertyValue("Object " + (object) "bug"));
                    
-                    args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc.Value));
+                        args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc));
+                    }
+                    
                 }
                 
             }

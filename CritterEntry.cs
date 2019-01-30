@@ -7,12 +7,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using StardewModdingAPI;
-namespace BugNet
+namespace BugCatching
 {
 
     public class CritterEntry
     {
-        public static IMonitor Monitor = BugNetMod._monitor;
+        public static IMonitor Monitor = BugCatchingMod._monitor;
 
 
         public BugModel BugModel { get; set; } = new BugModel();
@@ -40,25 +40,26 @@ namespace BugNet
 
         public SpawnConditions SpawnConditions { get; set; } = new SpawnConditions();
 
-        public class Behavior_
-        {
-            public string Type { get; set; }
-            public float Speed { get; set; }
-            
-            public class PatrolPoint_
-            {
-                public string Type { get; set; } = "start";
-                public float X { get; set; }
-                public float Y { get; set; }
-            }
-            public List<PatrolPoint_> PatrolPoints { get; set; } = new List<PatrolPoint_>();
-            public int PatrolPointDelay { get; set; }
-            public int PatrolPointDelayAddRandom { get; set; }
-        }
-        public Behavior_ Behavior { get; set; }
+        //public class Behavior_
+        //{
+        //    public string Type { get; set; }
+        //    public float Speed { get; set; }
+
+        //    public class PatrolPoint_
+        //    {
+        //        public string Type { get; set; } = "start";
+        //        public float X { get; set; }
+        //        public float Y { get; set; }
+        //    }
+        //    public List<PatrolPoint_> PatrolPoints { get; set; } = new List<PatrolPoint_>();
+        //    public int PatrolPointDelay { get; set; }
+        //    public int PatrolPointDelayAddRandom { get; set; }
+        //}
+        //public Behavior_ Behavior { get; set; }
 
 
 
+        public Behavior Behavior { get; set; } = new Behavior();
         public int SpawnAttempts { get; set; } = 3;
 
         public class Light_
@@ -75,17 +76,17 @@ namespace BugNet
         }
         public Light_ Light { get; set; } = null;
 
-        public virtual Vector2? attemptSpawn( GameLocation loc )
+        public virtual List<Vector2> attemptSpawn( GameLocation loc )
         {
-            
+            List<Vector2> spawnSpots = new List<Vector2>();
             for(int attempts = SpawnAttempts ; attempts > 0 ; attempts--)
             {
                 var spawnSpot = SpawnConditions.checkLocation(loc);
                 if (spawnSpot != null)
-                    return spawnSpot;
+                    spawnSpots.Add((Vector2)spawnSpot);
             }
 
-            return null;
+            return spawnSpots;
         }
 
         public virtual Critter makeCritter()

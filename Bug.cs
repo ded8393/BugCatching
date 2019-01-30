@@ -7,6 +7,7 @@ using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 using StardewValley;
+using StardewValley.Objects;
 using SObject = StardewValley.Object;
 using Critter = StardewValley.BellsAndWhistles.Critter;
 
@@ -16,13 +17,17 @@ using PyTK.Types;
 
 using StardewModdingAPI;
 
-namespace BugNet
+namespace BugCatching
 {
-    public class Bug : PySObject
+    public class Bug : SObject, ICustomObject, ISyncableElement
     {
-        internal static IModHelper Helper = BugNetMod._helper;
-        internal IMonitor Monitor = BugNetMod._monitor;
-        internal List<BugModel> AllBugs = BugNetMod.AllBugs;
+        internal static IModHelper Helper = BugCatchingMod._helper;
+        internal IMonitor Monitor = BugCatchingMod._monitor;
+        internal List<BugModel> AllBugs = BugCatchingMod.AllBugs;
+
+        public SObject sObject;
+        public CustomObjectData data { get; set; }
+        public PySync syncObject { get; set; }
 
         public CritterEntry Critter;
         public BugModel bugModel;
@@ -41,20 +46,18 @@ namespace BugNet
         }
 
         public Bug(CustomObjectData data)
-               :base(data)
         {
             sObject = new SObject(data.sdvId, 1);
             this.data = data;
-            checkData();
-            build(AllBugs.Find(b => b.FullId == data.id)); 
-           
+            build(AllBugs.Find(b => b.FullId == data.id));
+
         }
+
 
         public Bug(CustomObjectData data, Vector2 tileLocation, int stack)
         {
             sObject = new SObject(tileLocation, data.sdvId, stack);
             this.data = data;
-            checkData();
             build(AllBugs.Find(b => b.FullId == data.id));
         }
 
@@ -63,7 +66,6 @@ namespace BugNet
             Critter = critter.data;
             bugModel = Critter.BugModel;
             build(bugModel);
-            checkData();
         }
 
         public Bug(BugModel bugModel)
@@ -95,13 +97,7 @@ namespace BugNet
 
         public virtual void build(BugModel bugModel)
         {
-            Monitor.Log("building bug");
-            if (syncObject == null)
-            {
-                syncObject = new PySync(this);
-                syncObject.init();
-            }
-
+            Monitor.Log("building bug" + bugModel.Name);
             this.bugModel = bugModel;
             if (data == null)
             {
@@ -121,10 +117,15 @@ namespace BugNet
             type.Value = "Bug";
             ParentSheetIndex = data.sdvId;
             price.Value = bugModel.Price;
-            bigCraftable.Value = false;
+
             tilesize = new Rectangle(0, 0, 16, 16);
             boundingBox.Value = new Rectangle(0, 0, tilesize.Width, tilesize.Height);
             name = bugModel.Name;
+            if (syncObject == null)
+            {
+                syncObject = new PySync(this);
+                syncObject.init();
+            }
         }
       
         public override Item getOne()
@@ -145,7 +146,10 @@ namespace BugNet
         public override void drawWhenHeld(SpriteBatch spriteBatch, Vector2 objectPosition, Farmer f)
         {
             //todo: could move this down a little more
-            spriteBatch.Draw(Texture, objectPosition + new Vector2((Game1.tileSize / 4), (Game1.tileSize / 4)) , sourceRectangle, Color.White, 0.0f, Vector2.Zero, Game1.pixelZoom * 0.25f, SpriteEffects.None, Math.Max(0.0f, (f.getStandingY() + 2) / 10000f));
+            if (isPlain)
+                spriteBatch.Draw(Texture, objectPosition + new Vector2((Game1.tileSize / 4), (Game1.tileSize / 4)), sourceRectangle, Color.White, 0.0f, Vector2.Zero, Game1.pixelZoom, SpriteEffects.None, Math.Max(0.0f, (f.getStandingY() + 2) / 10000f));
+            else
+                spriteBatch.Draw(Texture, objectPosition + new Vector2((Game1.tileSize / 4), (Game1.tileSize / 4)) , sourceRectangle, Color.White, 0.0f, Vector2.Zero, Game1.pixelZoom * 0.25f, SpriteEffects.None, Math.Max(0.0f, (f.getStandingY() + 2) / 10000f));
         }
         public override void draw(SpriteBatch spriteBatch, int x, int y, float alpha = 1)
         {
@@ -170,15 +174,7 @@ namespace BugNet
         //public virtual void actionWhenStopBeingHeld(Farmer who)
         //{
         //}
-        public override void drawPlacementBounds(SpriteBatch spriteBatch, GameLocation location)
-        {
-
-        }
-
-        public override ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
-         {
-              return (ICustomObject) CustomObjectData.collection[additionalSaveData["id"]].getObject();
-         }
+        public override void drawPlacementBounds(SpriteBatch spriteBatch, GameLocation location){ }
 
         public override bool canBeTrashed()
          {
@@ -203,6 +199,45 @@ namespace BugNet
             return true;
         }
 
+        public  ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
+         {
+            BugModel bugModel = BugApi.findOrCreateBugModelFromId(additionalSaveData["bugId"]);
+            return new Bug(bugModel);
+         }
+
+        public object getReplacement()
+        {
+            Chest r = new Chest(true);
+            r.items.Add(heldObject);
+            return r;
+        }
+
+        public Dictionary<string, string> getAdditionalSaveData()
+        {
+            Dictionary<string, string> data = new Dictionary<string, string>();
+            data.Add("bugId", bugModel.FullId);
+            data.Add("stack", stack.ToString());
+
+            return data;
+        }
+
+        public void rebuild(Dictionary<string, string> additionalSaveData, object replacement)
+        {
+            BugModel bugModel = BugApi.findOrCreateBugModelFromId(additionalSaveData["bugId"]);
+            Log.info("bugname" + bugModel.Name.ToString());
+            build(bugModel);
+            stack.Value = int.Parse(additionalSaveData["stack"]);
+        }
+
+        public Dictionary<string, string> getSyncData()
+        {
+            return getAdditionalSaveData();
+        }
+
+        public void sync(Dictionary<string, string> syncData)
+        {
+            rebuild(syncData, heldObject);
+        }
     }
    
 }

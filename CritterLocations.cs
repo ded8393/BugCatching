@@ -12,11 +12,13 @@ using StardewValley.Locations;
 using StardewModdingAPI;
 using StardewModdingAPI.Framework.ModHelpers;
 
-namespace BugNet
+namespace BugCatching
 {
     public class CritterLocations
     {
         public GameLocation Location = new GameLocation();
+        public int CritterCount;
+        public List<Critter> critterList;
 
         private static IModHelper Helper;
 
@@ -26,18 +28,10 @@ namespace BugNet
         }
         public CritterLocations(GameLocation gameLocation)
         {
-            //foreach (GameLocation location in Helper.Multiplayer.GetActiveLocations())
-            //{
-            //    if (location.uniqueName == gameLocation.uniqueName)
-            //        Location = location;
-            //    BugNetMod.instance.Monitor.Log(location.uniqueName.ToString() + " " + gameLocation.uniqueName.ToString());
-            //}
-            // Location = gameLocation;
             Location = Game1.getLocationFromName(gameLocation.Name);
             //todo check for return null
         }
 
-        public List<Critter> critterList;
         public List<Critter> GetCritters()
         {
             object privateFieldValue = this.Location.GetType().GetField("critters", BindingFlags.NonPublic | BindingFlags.Instance)

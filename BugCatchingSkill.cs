@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework.Graphics;
 using SpaceCore;
 
-namespace BugNet
+namespace BugCatching
 {
     public class BugCatchingSkill : SpaceCore.Skills.Skill
     {
@@ -34,8 +34,8 @@ namespace BugNet
         public BugCatchingSkill()
             : base("ded.bugCatching")
         {
-            Icon = BugNetMod.instance.Helper.Content.Load<Texture2D>("Assets/skillIcon.png");
-            SkillsPageIcon = BugNetMod.instance.Helper.Content.Load<Texture2D>("Assets/skillIcon.png");
+            Icon = BugCatchingMod.instance.Helper.Content.Load<Texture2D>("Assets/skillIcon.png");
+            SkillsPageIcon = BugCatchingMod.instance.Helper.Content.Load<Texture2D>("Assets/skillIcon.png");
 
             ExperienceCurve = new int[] { 100, 380, 770, 1300, 2150, 3300, 4800, 6900, 10000, 15000 }; ;
 
