@@ -1,4 +1,5 @@
 ﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework.Graphics;
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 using System;
@@ -6,6 +7,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+
+
 using StardewModdingAPI;
 namespace BugCatching
 {
@@ -13,7 +16,6 @@ namespace BugCatching
     public class CritterEntry
     {
         public static IMonitor Monitor = BugCatchingMod._monitor;
-
 
         public BugModel BugModel { get; set; } = new BugModel();
         public class SpriteData_
@@ -39,25 +41,6 @@ namespace BugCatching
         public Dictionary<string, Animation_> Animations { get; set; } = new Dictionary<string, Animation_>();
 
         public SpawnConditions SpawnConditions { get; set; } = new SpawnConditions();
-
-        //public class Behavior_
-        //{
-        //    public string Type { get; set; }
-        //    public float Speed { get; set; }
-
-        //    public class PatrolPoint_
-        //    {
-        //        public string Type { get; set; } = "start";
-        //        public float X { get; set; }
-        //        public float Y { get; set; }
-        //    }
-        //    public List<PatrolPoint_> PatrolPoints { get; set; } = new List<PatrolPoint_>();
-        //    public int PatrolPointDelay { get; set; }
-        //    public int PatrolPointDelayAddRandom { get; set; }
-        //}
-        //public Behavior_ Behavior { get; set; }
-
-
 
         public Behavior Behavior { get; set; } = new Behavior();
         public int SpawnAttempts { get; set; } = 3;
@@ -88,15 +71,11 @@ namespace BugCatching
 
             return spawnSpots;
         }
-
-        public virtual Critter makeCritter()
-        {
-            return new CustomCritter(this);
-        }
-
         public virtual Critter makeCritter(Vector2 pos)
         {
-            return new CustomCritter(pos + new Vector2( 1, 1 ) *  (Game1.tileSize / 2), this);
+            var position = pos + new Vector2(1, 1) * (Game1.tileSize / 2);
+            CustomCritter critter =  new CustomCritter(pos + new Vector2(1, 1) * (Game1.tileSize / 2), this);
+            return critter.getCritter();
         }
 
         internal static Dictionary<string, CritterEntry> critters = new Dictionary<string, CritterEntry>();

@@ -29,7 +29,6 @@ namespace BugCatching
         public CustomObjectData data { get; set; }
         public PySync syncObject { get; set; }
 
-        public CritterEntry Critter;
         public BugModel bugModel;
         public virtual Texture2D Texture { get; private set; }
         public virtual Rectangle sourceRectangle => Game1.getSourceRectForStandardTileSheet(Texture, bugModel.TileIndex, bugModel.OriginalWidth, bugModel.OriginalWidth);
@@ -61,10 +60,9 @@ namespace BugCatching
             build(AllBugs.Find(b => b.FullId == data.id));
         }
 
-        public Bug(CustomCritter critter)
-        {
-            Critter = critter.data;
-            bugModel = Critter.BugModel;
+        public Bug(CritterEntry data)
+        {  
+            bugModel = data.BugModel;
             build(bugModel);
         }
 

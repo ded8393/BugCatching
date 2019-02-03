@@ -1,4 +1,4 @@
-﻿using System;
+﻿using System.Reflection;
 using System.Collections.Generic;
 using System.Linq;
 using Netcode;
@@ -27,7 +27,7 @@ namespace BugCatching
         internal static Texture2D texture;
         private bool inUse;
         private static bool caughtBug;
-        private static Critter BugInNet;
+        private static Critter Critter;
 
         public override string DisplayName { get => "Bug Net"; set => base.DisplayName = "Bug Net"; }
         public override string getDescription()
@@ -88,14 +88,6 @@ namespace BugCatching
             return true;
         }
 
-        
-        
-
-
-
-       
-        
-
         public override void drawInMenu(SpriteBatch spriteBatch, Vector2 location, float scaleSize, float transparency, float layerDepth, bool drawStackNumber, Color color, bool drawShadow)
         {
             spriteBatch.Draw(texture, location + new Vector2((Game1.tileSize / 2), 0), new Rectangle?(Game1.getSquareSourceRectForNonStandardTileSheet(texture, 16, 32, IndexOfMenuItemView)), color * transparency, 0.0f, new Vector2(8f, 16f), 4f * scaleSize, SpriteEffects.None, layerDepth);
@@ -124,8 +116,8 @@ namespace BugCatching
                     {
                         if (critter.getBoundingBox(0, 0).Intersects(rectangle))
                         {
-                            //Game1.addHUDMessage(new HUDMessage("babied", 3));
-                            BugInNet = critter;
+                            //Game1.addHUDMessage(new HUDMessage(critter.GetType().ToString(), 3));
+                            Critter = critter;
                             caughtBug = true;
                             break;
                         }
@@ -142,7 +134,7 @@ namespace BugCatching
             power = who.toolPower;
             who.stopJittering();
 
-            if ( caughtBug && BugInNet != null)
+            if ( caughtBug && Critter != null)
             {
                 getBugFromNet(location, who); 
             }
@@ -152,22 +144,14 @@ namespace BugCatching
 
         public static void getBugFromNet(GameLocation location, StardewValley.Farmer who)
         {
-            Bug bug;
-        
-            if (BugInNet.GetType().ToString() == "BugCatching.CustomCritter")
-            {
-                bug = new Bug((CustomCritter)BugInNet);
-            } else
-            {
-                bug = BugApi.getBugFromCritterType(BugInNet);
+            Bug BugInNet = BugApi.getBugFromCritterType(Critter);
 
-            }
             CritterLocations critterLocations = new CritterLocations(location);
-            critterLocations.RemoveThisCritter(BugInNet);
-            who.addItemByMenuIfNecessary((Item) bug.getOne());
-            Game1.player.AddCustomSkillExperience(BugCatchingMod.skill, bug.bugModel.Price);
-            BugCatchingMod.instance.Monitor.Log("player experience: " + Game1.player.GetCustomSkillExperience(BugCatchingMod.skill).ToString());
-            BugInNet = (Critter) null;
+            critterLocations.RemoveThisCritter(Critter);
+            who.addItemByMenuIfNecessary((Item) BugInNet.getOne());
+            Game1.player.AddCustomSkillExperience(BugCatchingMod.skill, BugInNet.bugModel.Price);
+            Log.info("player experience: " + Game1.player.GetCustomSkillExperience(BugCatchingMod.skill).ToString());
+            Critter = (Critter) null;
             caughtBug = false;
         }
 

@@ -66,6 +66,11 @@ namespace BugCatching
         public static BugModel getDataFromCritter(Critter critter)
         {
             string bugName = critter.GetType().ToString().Split('.').Last();
+            if (bugName == "Floater")
+            {
+                 Floater f = (Floater)critter;
+                 return (BugModel) f.data.BugModel;
+           }
             int TileIndex = Helper.Reflection.GetField<int>(critter, "baseFrame").GetValue();
 
             return createPlainBugModel(bugName, TileIndex);
