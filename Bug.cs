@@ -30,8 +30,9 @@ namespace BugCatching
         public PySync syncObject { get; set; }
 
         public BugModel bugModel;
+
         public virtual Texture2D Texture { get; private set; }
-        public virtual Rectangle sourceRectangle => Game1.getSourceRectForStandardTileSheet(Texture, bugModel.TileIndex, bugModel.OriginalWidth, bugModel.OriginalWidth);
+        public virtual Rectangle sourceRectangle => Game1.getSourceRectForStandardTileSheet(Texture, bugModel.SpriteData.TileIndex, bugModel.SpriteData.FrameWidth, bugModel.SpriteData.FrameHeight);
 
         private Rectangle tilesize = new Rectangle(0, 0, 16, 16);
         private int tileIndex;
@@ -99,18 +100,20 @@ namespace BugCatching
             this.bugModel = bugModel;
             if (data == null)
             {
-                data = CustomObjectData.collection.ContainsKey(bugModel.FullId) ? CustomObjectData.collection[bugModel.FullId] : new CustomObjectData(bugModel.FullId, bugModel.QuickItemDataString, bugModel.getTexture(), Color.White, bugModel.TileIndex, true, typeof(Bug));
+                data = CustomObjectData.collection.ContainsKey(bugModel.FullId) ? CustomObjectData.collection[bugModel.FullId] : new CustomObjectData(bugModel.FullId, bugModel.QuickItemDataString, bugModel.SpriteData.getTexture(), Color.White, bugModel.SpriteData.TileIndex, true, typeof(Bug));
             }
             
             if (sObject == null)
             {
                 sObject = new SObject(data.sdvId, 1);
             }
-            Texture = bugModel.getTexture(Helper);
+            if (Texture == null)
+                Texture = bugModel.SpriteData.getTexture(Helper);
+
             id = bugModel.FullId;
             if (id.Contains("Plain."))
                 isPlain = true;
-            tileIndex = bugModel.TileIndex;
+            tileIndex = bugModel.SpriteData.TileIndex;
             bigCraftable.Value = false;
             type.Value = "Bug";
             ParentSheetIndex = data.sdvId;
@@ -192,13 +195,26 @@ namespace BugCatching
         }
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
         {
-            CritterEntry livingBug = CritterEntry.critters.Find(ce => ce.Value.BugModel.FullId == bugModel.FullId).Value;
+            CritterEntry livingBug = new CritterEntry();
+
+            if (isPlain)
+            {
+                BugModel bugModel = new BugModel();
+                bugModel = BugApi.findOrCreateBugModelFromId(this.bugModel.FullId);
+                livingBug.BugModel = bugModel;
+            }
+            else
+            {
+                livingBug = CritterEntry.critters.Find(ce => ce.Value.BugModel.FullId == this.bugModel.FullId).Value;
+            }
+               
             location.addCritter(livingBug.makeCritter(new Vector2(x, y)));
             return true;
         }
 
         public  ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
          {
+            Log.info("recreating: " + additionalSaveData["bugId"]);
             BugModel bugModel = BugApi.findOrCreateBugModelFromId(additionalSaveData["bugId"]);
             return new Bug(bugModel);
          }
@@ -221,8 +237,8 @@ namespace BugCatching
 
         public void rebuild(Dictionary<string, string> additionalSaveData, object replacement)
         {
+            Log.info("rebuilding bug: " + additionalSaveData["bugId"]);
             BugModel bugModel = BugApi.findOrCreateBugModelFromId(additionalSaveData["bugId"]);
-            Log.info("bugname" + bugModel.Name.ToString());
             build(bugModel);
             stack.Value = int.Parse(additionalSaveData["stack"]);
         }

@@ -1,10 +1,13 @@
-﻿using Microsoft.Xna.Framework;
+﻿using System.Collections.Generic;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+
 using StardewValley;
 using StardewValley.BellsAndWhistles;
 
 namespace BugCatching
 {
+    // MIGHT RENAME CRITTERCLASSIFIER
     public class CustomCritter : Critter
     {
         public CritterEntry data; 
@@ -19,12 +22,12 @@ namespace BugCatching
         {
             this.position = this.startingPosition = pos;
             this.data = data;
+            this.flip = Game1.random.NextDouble() < 0.5;
+            var tex = BugCatchingMod.instance.Helper.Content.Load<Texture2D>(data.BugModel.SpriteData.TextureAsset);
+            var texStr = BugCatchingMod.instance.Helper.Content.GetActualAssetKey(data.BugModel.SpriteData.TextureAsset);
 
-            var tex = BugCatchingMod.instance.Helper.Content.Load<Texture2D>(data.BugModel.TextureAsset);
-            var texStr = BugCatchingMod.instance.Helper.Content.GetActualAssetKey(data.BugModel.TextureAsset);
-
-            this.baseFrame = data.BugModel.TileIndex;
-            this.sprite = new AnimatedSprite(texStr, baseFrame, data.SpriteData.FrameWidth, data.SpriteData.FrameHeight);
+            this.baseFrame = data.BugModel.SpriteData.TileIndex;
+            this.sprite = new AnimatedSprite(texStr, baseFrame, data.BugModel.SpriteData.FrameWidth, data.BugModel.SpriteData.FrameHeight);
 
             if ( data.Light != null )
             {
@@ -68,9 +71,31 @@ namespace BugCatching
         }
         public override void drawAboveFrontLayer(SpriteBatch b)
         {
-            this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, this.yJumpOffset - 128f + this.yOffset)), this.position.Y / 10000f, 0, 0, Color.White, this.flip, 1f, 0.0f, false);
+            this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, this.yJumpOffset - 128f + this.yOffset)), this.position.Y / 10000f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
         }
-        
-
     }
+    public class Jumper : Critter
+    {
+        public CritterEntry data { get; set; } = new CritterEntry();
+        public Jumper(CustomCritter critter)
+        {
+            this.data = critter.data;
+            this.sprite = critter.sprite;
+            this.flip = critter.flip;
+            this.baseFrame = this.sprite.currentFrame;
+            this.position = critter.startingPosition;
+            this.startingPosition = this.position;
+            this.sprite.loop = true;
+            this.sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>()
+            {
+                new FarmerSprite.AnimationFrame(300, 600),
+                new FarmerSprite.AnimationFrame(304, 100),
+                new FarmerSprite.AnimationFrame(305, 100),
+                new FarmerSprite.AnimationFrame(306, 300),
+                new FarmerSprite.AnimationFrame(305, 100),
+                new FarmerSprite.AnimationFrame(304, 100)
+            });
+        }
+    }
+    
 }

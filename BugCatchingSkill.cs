@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using SpaceCore;
 
@@ -34,12 +35,12 @@ namespace BugCatching
         public BugCatchingSkill()
             : base("ded.bugCatching")
         {
-            Icon = BugCatchingMod.instance.Helper.Content.Load<Texture2D>("Assets/skillIcon.png");
-            SkillsPageIcon = BugCatchingMod.instance.Helper.Content.Load<Texture2D>("Assets/skillIcon.png");
+            SkillsPageIcon = Icon = BugCatchingMod.instance.Helper.Content.Load<Texture2D>("Assets/skillIcon.png");
+            
 
             ExperienceCurve = new int[] { 100, 380, 770, 1300, 2150, 3300, 4800, 6900, 10000, 15000 }; ;
 
-            ExperienceBarColor = Microsoft.Xna.Framework.Color.DarkOrchid;
+            ExperienceBarColor = Color.DarkOrchid;
 
         }
         public override string GetName()

@@ -18,27 +18,7 @@ namespace BugCatching
         public static IMonitor Monitor = BugCatchingMod._monitor;
 
         public BugModel BugModel { get; set; } = new BugModel();
-        public class SpriteData_
-        {
-            public int Variations { get; set; }
-            public int FrameWidth { get; set; }
-            public int FrameHeight { get; set; }
-            public float Scale { get; set; } = 4;
-            public Boolean Flying { get; set; } = true;
-        }
-        public SpriteData_ SpriteData { get; set; } = new SpriteData_();
-
-        public class Animation_
-        {
-            public class AnimationFrame_
-            {
-                public int Frame;
-                public int Duration;
-            }
-
-            public List<AnimationFrame_> Frames = new List<AnimationFrame_>();
-        }
-        public Dictionary<string, Animation_> Animations { get; set; } = new Dictionary<string, Animation_>();
+       
 
         public SpawnConditions SpawnConditions { get; set; } = new SpawnConditions();
 

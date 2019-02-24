@@ -5,49 +5,19 @@
         "Id": "0",
         "Name": "Monarch Butterfly",
         "Description": "looka this lil bugger here, eh?",
-        "TextureAsset": "Assets/monarch.png",
-        "TileIndex": 0,
+        "SpriteData": {
+            "TextureAsset": "Assets/monarch.png",
+            "TileIndex": 0,
+            "Variations": 0,
+            "FrameWidth": 32,
+            "FrameHeight": 32,
+            "Scale": 1
+        },
         "Price":  1000,
-        "OriginalWidth": 32,
         "QuickItemDataString": "Monarch Butterfly/1000/-300/Bug/its so pretty/true/true/0/Monarch Butterfly"
 
       },
-      "SpriteData": {
-        "Variations": 0,
-        "FrameWidth": 32,
-        "FrameHeight": 32,
-        "Scale": 1
-      },
-      "Animations": {
-        "default": {
-          "Frames": [
-            {
-              "Frame": 0,
-              "Duration": 25
-            },
-            {
-              "Frame": 1,
-              "Duration": 25
-            },
-            {
-              "Frame": 2,
-              "Duration": 25
-            },
-            {
-              "Frame": 3,
-              "Duration": 25
-            },
-            {
-              "Frame": 2,
-              "Duration": 25
-            },
-            {
-              "Frame": 1,
-              "Duration": 25
-            }
-          ]
-        }
-      },
+     
       "SpawnConditions": {
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
@@ -74,50 +44,18 @@
         "Id": "1",
         "Name": "Inchworm",
         "Description": "only an inch long",
-        "TextureAsset": "Assets/Inchworm.png",
-        "TileIndex": 2,
+        "SpriteData": {
+                "TextureAsset": "Assets/Inchworm.png",
+                "TileIndex": 2,"Variations": 0,
+                "FrameWidth": 32,
+                "FrameHeight": 32,
+                "Scale": 1,
+                "Flying": false
+        },
         "Price":  100,
-        "OriginalWidth": 32,
         "QuickItemDataString": "Inchworm/100/-50/Bug/only an inch long/true/true/0/Inchworm"
-
       },
-      "SpriteData": {
-        "Variations": 0,
-        "FrameWidth": 32,
-        "FrameHeight": 32,
-        "Scale": 1,
-        "Flying": false
-      },
-      "Animations": {
-        "default": {
-          "Frames": [
-            {
-              "Frame": 0,
-              "Duration": 250
-            },
-            {
-              "Frame": 1,
-              "Duration":250
-            },
-            {
-              "Frame": 2,
-              "Duration": 250
-            },
-            {
-              "Frame": 0,
-              "Duration": 250
-            },
-            {
-              "Frame": 1,
-              "Duration": 250
-            },
-            {
-              "Frame": 2,
-              "Duration": 250
-            }
-          ]
-        }
-      },
+      
       "SpawnConditions": {
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
@@ -146,47 +84,15 @@
         "Id": "2",
         "Name": "Eastern-Tailed Blue",
         "Description": "With this coloration, must be a male.",
-        "TextureAsset": "Assets/Eastern-Tailed-Blue.png",
-        "TileIndex": 0,
-        "OriginalWidth": 32,
         "Price": 2000,
-        "QuickItemDataString": "Eastern-Tailed Blue Butterfly/700/-200/Bug/With this coloration, must be a male./true/true/0/Eastern-Tailed Blue Butterfly"
-
-      },
-      "SpriteData": {
-        "Variations": 0,
-        "FrameWidth": 32,
-        "FrameHeight": 32,
-        "Scale": 1
-      },
-      "Animations": {
-        "default": {
-          "Frames": [
-            {
-              "Frame": 0,
-              "Duration": 25
-            },
-            {
-              "Frame": 1,
-              "Duration": 25
-            },
-            {
-              "Frame": 2,
-              "Duration": 25
-            },
-            {
-              "Frame": 3,
-              "Duration": 25
-            },
-            {
-              "Frame": 2,
-              "Duration": 25
-            },
-            {
-              "Frame": 1,
-              "Duration": 25
-            }
-          ]
+        "QuickItemDataString": "Eastern-Tailed Blue Butterfly/700/-200/Bug/With this coloration, must be a male./true/true/0/Eastern-Tailed Blue Butterfly",
+        "SpriteData": {
+          "TextureAsset": "Assets/Eastern-Tailed-Blue.png",
+          "TileIndex": 0,
+          "Variations": 0,
+          "FrameWidth": 32,
+          "FrameHeight": 32,
+          "Scale": 1
         }
       },
       "SpawnConditions": {

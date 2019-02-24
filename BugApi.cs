@@ -38,19 +38,23 @@ namespace BugCatching
 
                 return bugModel;
             }
-            catch { }
-            
-
-            if (bugId.Contains("Plain"))
+            catch
             {
+                Log.info("Parsing Name to Create Bug: " + bugId);
                 List<string> i = bugId.Split('.').ToList();
                 string tileIndex = i.Last();
                 string bugName = i[(i.IndexOf(tileIndex) - 1)];
+                Log.info("Parsed name: " + bugName + " tileIndex: " + tileIndex);
                 bugModel = createPlainBugModel(bugName, tileIndex.toInt());
+                return bugModel;
             }
-            Log.info("bugname _plain" + bugModel.Name.ToString());
+            
 
-            return bugModel;
+            //if (bugId.Contains("Plain"))
+            //{
+               
+            //}
+            
                 
         }
 
@@ -58,12 +62,12 @@ namespace BugCatching
         {
             var bug = new Bug();
             
-            BugModel data = getDataFromCritter(critter);
+            BugModel data = createBugModelFromCritter(critter);
             bug = new Bug(data);
             return bug;
         }
 
-        public static BugModel getDataFromCritter(Critter critter)
+        public static BugModel createBugModelFromCritter(Critter critter)
         {
             string bugName = critter.GetType().ToString().Split('.').Last();
             if (bugName == "Floater")
@@ -79,20 +83,26 @@ namespace BugCatching
 
         public static BugModel createPlainBugModel(string bugName, int tileIndex)
         {
-            string Description = "Just a plain old " + bugName;
-            int Price = 100;
-            string QuickItemString = bugName + "/100/-50/Bug/Just a Plain " + bugName + "/true/true/0/" + bugName;
-            string TextureAsset = "Assets/critters.png";
-            string[] bugIdList = { "Plain", bugName, tileIndex.ToString()};
-            string bugId = String.Join(".", bugIdList);
-            BugModel bugModel = new BugModel() { Name = bugName, Id = bugId, Description = Description, TileIndex = tileIndex, Price = Price, TextureAsset = TextureAsset, QuickItemDataString = QuickItemString };
-            if (BugCatchingMod.AllBugs.Find(b => b.FullId == bugModel.FullId) != null)
-                return bugModel;
+            string plainBugDescription = "Just a plain old " + bugName;
+            int plainBugPrice = 100;
+            string plainBugQuickItemString = bugName + "/100/-50/Bug/Just a Plain " + bugName + "/true/true/0/" + bugName;
+            string plainBugTextureAsset = "Assets/critters.png";
+            string[] plainBugIdList = { "Plain", bugName, tileIndex.ToString()};
+            string plainBugId = String.Join(".", plainBugIdList);
+            SpriteData plainBugSpriteData= new SpriteData() { TileIndex = tileIndex, TextureAsset = plainBugTextureAsset, FrameHeight = 16, FrameWidth = 16 };
+            BugModel plainBugModel = new BugModel() { Name = bugName, Id = plainBugId, Description = plainBugDescription, Price = plainBugPrice, QuickItemDataString = plainBugQuickItemString, SpriteData = plainBugSpriteData };
+
+            if (BugCatchingMod.AllBugs.Find(b => b.FullId == plainBugModel.FullId) != null)
+            {
+                Log.debug("Found bug in AllBugs");
+                return plainBugModel;
+            }
+                
             else
             {
-                //CustomObjectData.newObject(bugModel.FullId, bugModel.getTexture(), Color.White, bugModel.Name, bugModel.Description, bugModel.TileIndex, price: bugModel.Price, customType: typeof(Bug));
-                BugCatchingMod.AllBugs.AddOrReplace(bugModel);
-                return bugModel;
+                Log.debug("Adding bug to AllBugs");
+                BugCatchingMod.AllBugs.AddOrReplace(plainBugModel);
+                return plainBugModel;
             }
 
         }

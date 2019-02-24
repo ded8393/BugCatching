@@ -149,7 +149,7 @@ namespace BugCatching
             CritterLocations critterLocations = new CritterLocations(location);
             critterLocations.RemoveThisCritter(Critter);
             who.addItemByMenuIfNecessary((Item) BugInNet.getOne());
-            Game1.player.AddCustomSkillExperience(BugCatchingMod.skill, BugInNet.bugModel.Price);
+            who.AddCustomSkillExperience(BugCatchingMod.skill, BugInNet.bugModel.Price);
             Log.info("player experience: " + Game1.player.GetCustomSkillExperience(BugCatchingMod.skill).ToString());
             Critter = (Critter) null;
             caughtBug = false;
@@ -158,13 +158,11 @@ namespace BugCatching
        
         public override void endUsing(GameLocation location, Farmer who)
         {
-            
             base.endUsing(location, who);
         }
 
         public override bool onRelease(GameLocation location, int x, int y, StardewValley.Farmer who)
         {
-            
             inUse = false;
             return base.onRelease(location, x, y, who);
         }

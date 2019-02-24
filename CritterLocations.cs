@@ -52,6 +52,17 @@ namespace BugCatching
         //public void AddCritterToGameLocation(GameLocation location, Critter critter)
         //{
         //    location.addCritter(critter);
+//        if (!this.largeTerrainFeatures[index2].getBoundingBox().Intersects(new Microsoft.Xna.Framework.Rectangle((int) tilePosition.X* 64, (int) tilePosition.Y * 64, 64, 64)) && !this.isTileLocationTotallyClearAndPlaceable(tilePosition))
+//            {
+//              flag = false;
+//              break;
+//            }
+//}
+//          if (flag)
+//          {
+//            this.critters.Add((Critter) new Rabbit(tilePosition, flip));
+//            break;
+//          }
         //}
 
         

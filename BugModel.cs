@@ -11,8 +11,7 @@ namespace BugCatching
 {
     public class BugModel
     {
-        internal IModHelper Helper = BugCatchingMod._helper;
-        internal IMonitor Monitor = BugCatchingMod._monitor;
+        
 
         private string ModId = BugCatchingMod.ModId;
         public string Name { get; set; }
@@ -25,23 +24,38 @@ namespace BugCatching
         } 
         public string Description { get; set;  }
         public string QuickItemDataString { get; set; }
-        public string TextureAsset { get; set; }
-        public int TileIndex { get; set; } = 0;
-        public int OriginalWidth { get; set; } = 16;
         public int Price { get; set; } = 100;
-        public static Texture2D texture { get; set; }
+        
+        public SpriteData SpriteData { get; set; } = new SpriteData();
 
-        public Texture2D getTexture(IModHelper helper = null)
-        {
-             if (helper == null)
-                helper = Helper;
 
-            texture = Helper.Content.Load<Texture2D>(TextureAsset, ContentSource.ModFolder);
-            Monitor.Log("got Texture");
-            return texture;
 
-        }
+       
 
     }
-    
+    public class SpriteData
+        {
+            internal IModHelper Helper = BugCatchingMod._helper;
+            internal IMonitor Monitor = BugCatchingMod._monitor;
+
+            public string TextureAsset { get; set; }
+            public int TileIndex { get; set; } = 0;
+            public int Variations { get; set; } = 0;
+            public int FrameWidth { get; set; } = 32;
+            public int FrameHeight { get; set; } = 32;
+            public float Scale { get; set; } = 4;
+            public static Texture2D texture { get; set; }
+
+            public Texture2D getTexture(IModHelper helper = null)
+            {
+                 if (helper == null)
+                    helper = Helper;
+
+                texture = Helper.Content.Load<Texture2D>(TextureAsset, ContentSource.ModFolder);
+                if (texture != null)
+                    Log.info("got Texture");
+                return texture;
+
+            }
+        }
 }
