@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
@@ -41,9 +42,13 @@ namespace BugCatching
         }
         public Critter getCritter()
         {
-            //if (Classification == "Flying")
-            return new Floater(this);
 
+            if (data.Behavior.Classification == "Flying")
+                return new Floater(this);
+            else if (data.Behavior.Classification == "Crawler")
+                return new Crawler(this);
+            else
+                return new Floater(this);
         }
         //public override bool update(GameTime time, GameLocation environment)
         //{
@@ -74,28 +79,60 @@ namespace BugCatching
             this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, this.yJumpOffset - 128f + this.yOffset)), this.position.Y / 10000f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
         }
     }
-    public class Jumper : Critter
+    public class Crawler : Critter
     {
         public CritterEntry data { get; set; } = new CritterEntry();
-        public Jumper(CustomCritter critter)
+
+        private int crawlTimer;
+        private int crawlSpeed = 50;
+
+        public Crawler(CustomCritter critter)
         {
             this.data = critter.data;
             this.sprite = critter.sprite;
+            this.sprite.loop = false;
             this.flip = critter.flip;
             this.baseFrame = this.sprite.currentFrame;
             this.position = critter.startingPosition;
+            this.crawlSpeed = Game1.random.Next(200, 350);
             this.startingPosition = this.position;
-            this.sprite.loop = true;
-            this.sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>()
+        }
+        public void doneWithJump(Farmer who)
+        {
+            this.crawlTimer = 200 + Game1.random.Next(-5, 6);
+        }
+        public override bool update(GameTime time, GameLocation environment)
+        {
+            this.crawlTimer -= time.ElapsedGameTime.Milliseconds;
+            if (this.crawlTimer <= 0 && this.sprite.CurrentAnimation == null)
             {
-                new FarmerSprite.AnimationFrame(300, 600),
-                new FarmerSprite.AnimationFrame(304, 100),
-                new FarmerSprite.AnimationFrame(305, 100),
-                new FarmerSprite.AnimationFrame(306, 300),
-                new FarmerSprite.AnimationFrame(305, 100),
-                new FarmerSprite.AnimationFrame(304, 100)
-            });
+
+                ////todo: add check for terrain features//debris
+
+                this.position.X += this.flip ? -8f : 8f;
+                if (base.update(time, environment))
+                {
+                    this.flip = !this.flip;
+                    this.position.X += this.flip ? -8f : 8f;
+                }
+                    
+                this.sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>()
+                {
+                    new FarmerSprite.AnimationFrame(this.baseFrame + 1, this.crawlSpeed),
+                    new FarmerSprite.AnimationFrame(this.baseFrame + 2, this.crawlSpeed ),
+                    new FarmerSprite.AnimationFrame(this.baseFrame, this.crawlSpeed, false, false, new AnimatedSprite.endOfAnimationBehavior(this.doneWithJump), false)
+
+                });
+                this.crawlTimer = 200;
+            }
+
+            return base.update(time, environment);
+        }
+        public override void draw(SpriteBatch b)
+        {
+            this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, -64f)), 0.0f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
         }
     }
+    
     
 }

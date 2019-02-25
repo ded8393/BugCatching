@@ -46,7 +46,7 @@
         "Description": "only an inch long",
         "SpriteData": {
                 "TextureAsset": "Assets/Inchworm.png",
-                "TileIndex": 2,"Variations": 0,
+                "TileIndex": 0,"Variations": 0,
                 "FrameWidth": 32,
                 "FrameHeight": 32,
                 "Scale": 1,
@@ -66,8 +66,8 @@
         "AllowRain": false,
         "Attractors": [
           {
-            "AttractorType": "object",
-            "AttractorName": "Chest"
+            "AttractorType": "terrainfeature",
+            "AttractorName": "grass"
           }
         ]
 
@@ -75,7 +75,7 @@
       
       "SpawnAttempts": 9,
       "Behavior": {
-        "Classification": "Flying",
+        "Classification": "Crawler",
         "NumFrames": 3
       }
     },

@@ -47,7 +47,8 @@ namespace BugCatching
                     keys.Shuffle();
                     foreach (var key in keys)
                     {
-                        string featureName = loc.terrainFeatures[key].GetType().ToString().Split('.').Last().ToString();
+                        string featureName = loc.terrainFeatures[key].GetType().ToString().Split('.').Last().ToString().ToLower();
+                        //Log.debug($"feature {featureName}");
                         if (AttractorName != null && AttractorName != "" && AttractorName == featureName)
                         {
                             if (checkAttractor(loc.terrainFeatures[key]))
