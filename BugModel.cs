@@ -16,6 +16,7 @@ namespace BugCatching
         private string ModId = BugCatchingMod.ModId;
         public string Name { get; set; }
         public string Id { get; set; }
+        public int ParentSheetIndex { get; set; }
         public string FullId
         {
             get {

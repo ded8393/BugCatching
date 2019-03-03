@@ -7,7 +7,11 @@ using System.Threading.Tasks;
 using Microsoft.Xna.Framework;
 
 
+using PyTK.Types;
+
+
 using StardewValley;
+using StardewValley.TerrainFeatures;
 
 namespace BugCatching
 {
@@ -43,20 +47,10 @@ namespace BugCatching
                 }
                 else if (AttractorType == "terrainfeature")
                 {
-                    var keys = loc.terrainFeatures.Keys.ToList();
-                    keys.Shuffle();
-                    foreach (var key in keys)
-                    {
-                        string featureName = loc.terrainFeatures[key].GetType().ToString().Split('.').Last().ToString().ToLower();
-                        //Log.debug($"feature {featureName}");
-                        if (AttractorName != null && AttractorName != "" && AttractorName == featureName)
-                        {
-                            if (checkAttractor(loc.terrainFeatures[key]))
-                                return key * Game1.tileSize;
-                        }
-                    }
+                    List<Vector2> viableLocations = new TerrainSelector<TerrainFeature>(o => o.GetType().ToString().Split('.').Last().ToString() == AttractorName).keysIn(loc);
+                    viableLocations.Shuffle();
+                    return viableLocations.First(); //* Game1.tileSize;
 
-                    return null;
                 }
                 else if (AttractorType == "object")
                 {

@@ -70,6 +70,7 @@ namespace BugCatching
         public void LoadCritters(object sender, StardewModdingAPI.Events.UpdateTickedEventArgs e)
         {
             BugNetData data = _helper.Data.ReadJsonFile<BugNetData>("Assets/critters.json");
+            int Id = -666;
             AllCritters = new List<CritterEntry>();
             Dictionary<int, string> AssetData = new Dictionary<int, string>();
             foreach (CritterEntry critter in data.AllCritters)
@@ -78,10 +79,12 @@ namespace BugCatching
                 CritterEntry.Register(critter);
                 var bugModel = new BugModel();
                 bugModel = critter.BugModel;
+                bugModel.ParentSheetIndex = Id;
                 AllBugs.AddOrReplace(bugModel);
                 CustomObjectData.newObject(bugModel.FullId,  bugModel.SpriteData.getTexture(), Color.White, bugModel.Name, bugModel.Description, bugModel.SpriteData.TileIndex, price:bugModel.Price, customType: typeof(Bug));
                 //AssetData[bugData.sdvId] = bugModel.QuickItemDataString;
                 Monitor.Log("Added: " + bugModel.Name + " id " + bugModel.FullId.ToString());
+                Id--;
             }
 
             //_helper.Data.WriteJsonFile("data\\bugs.json", AssetData);
@@ -99,7 +102,7 @@ namespace BugCatching
         {
             if (Game1.CurrentEvent != null)
                 return;
-
+            var CritterLocations = new CritterLocations(args.NewLocation);
             foreach (var entry in CritterEntry.critters)
             {
                 var spawnLocs = entry.Value.attemptSpawn(args.NewLocation);
@@ -109,7 +112,10 @@ namespace BugCatching
                     {
                         Monitor.Log(entry.Value.BugModel.Name + " at location " + spawnLoc.ToString());
                         // this.map.GetLayer("Back").Tiles[xLocation, yLocation].Properties.Add("Treasure", new PropertyValue("Object " + (object) "bug"));
-                        args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc));
+                        if (entry.Value.Behavior.Classification == "Digger")
+                            CritterLocations.AddDiggableCritterToTerrainFeature(entry.Value, spawnLoc, "Back");
+                        else
+                            args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc));
                     }
                     
                 }

@@ -6,24 +6,24 @@
         "Name": "Monarch Butterfly",
         "Description": "looka this lil bugger here, eh?",
         "SpriteData": {
-            "TextureAsset": "Assets/monarch.png",
-            "TileIndex": 0,
-            "Variations": 0,
-            "FrameWidth": 32,
-            "FrameHeight": 32,
-            "Scale": 1
+          "TextureAsset": "Assets/monarch.png",
+          "TileIndex": 0,
+          "Variations": 0,
+          "FrameWidth": 32,
+          "FrameHeight": 32,
+          "Scale": 1
         },
-        "Price":  1000,
+        "Price": 1000,
         "QuickItemDataString": "Monarch Butterfly/1000/-300/Bug/its so pretty/true/true/0/Monarch Butterfly"
 
       },
-     
+
       "SpawnConditions": {
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
         "MinTimeOfDay": 600,
         "MaxTimeOfDay": 1800,
-        "Rarity": 0.5,
+        "Rarity": 0.70,
         "RequireDarkOut": false,
         "AllowRain": false,
         "Attractors": [
@@ -36,7 +36,7 @@
       "SpawnAttempts": 9,
       "Behavior": {
         "Classification": "Flying",
-          "NumFrames": 4
+        "NumFrames": 4
       }
     },
     {
@@ -45,34 +45,35 @@
         "Name": "Inchworm",
         "Description": "only an inch long",
         "SpriteData": {
-                "TextureAsset": "Assets/Inchworm.png",
-                "TileIndex": 0,"Variations": 0,
-                "FrameWidth": 32,
-                "FrameHeight": 32,
-                "Scale": 1,
-                "Flying": false
+          "TextureAsset": "Assets/Inchworm.png",
+          "TileIndex": 0,
+          "Variations": 0,
+          "FrameWidth": 32,
+          "FrameHeight": 32,
+          "Scale": 1,
+          "Flying": false
         },
-        "Price":  100,
+        "Price": 100,
         "QuickItemDataString": "Inchworm/100/-50/Bug/only an inch long/true/true/0/Inchworm"
       },
-      
+
       "SpawnConditions": {
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
         "MinTimeOfDay": 600,
         "MaxTimeOfDay": 1800,
-        "Rarity": 1.0,
+        "Rarity": 0.50,
         "RequireDarkOut": false,
         "AllowRain": false,
         "Attractors": [
           {
             "AttractorType": "terrainfeature",
-            "AttractorName": "grass"
+            "AttractorName": "Grass"
           }
         ]
 
       },
-      
+
       "SpawnAttempts": 9,
       "Behavior": {
         "Classification": "Crawler",
@@ -96,7 +97,7 @@
         }
       },
       "SpawnConditions": {
-        "Rarity":  0.01,
+        "Rarity": 0.99,
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
         "MinTimeOfDay": 600,
@@ -112,12 +113,53 @@
           }
         ]
       },
-      
+
 
       "SpawnAttempts": 90,
       "Behavior": {
         "Classification": "Flying",
         "NumFrames": 4
+      }
+    },
+    {
+      "BugModel": {
+        "Id": "3",
+        "Name": "Dung Beetle",
+        "Description": "Um... You should probably wash your net.",
+        "SpriteData": {
+          "TextureAsset": "Assets/dungBeetle.png",
+          "TileIndex": 0,
+          "Variations": 0,
+          "FrameWidth": 32,
+          "FrameHeight": 32,
+          "Scale": 1,
+          "Flying": false
+        },
+        "Price": 100,
+        "QuickItemDataString": "Dung Beetle/300/-150/Bug/Um... You should probably wash your net./true/true/0/Dung Beetle"
+      },
+
+      "SpawnConditions": {
+        "Seasons": [ "spring", "summer", "fall" ],
+        "Locations": [ "Farm" ],
+        "MinTimeOfDay": 600,
+        "MaxTimeOfDay": 1800,
+        "Rarity": 0.25,
+        "RequireDarkOut": false,
+        "AllowRain": false,
+        "Attractors": [
+          {
+            "AttractorType": "terrainfeature",
+            "AttractorName": "Grass"
+          }
+        ]
+
+      },
+
+      "SpawnAttempts": 9,
+      "Behavior": {
+        "Classification": "Digger",
+        "NumFrames": 9
       }
     }
   ]

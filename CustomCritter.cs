@@ -40,15 +40,23 @@ namespace BugCatching
                 Game1.currentLightSources.Add(light);
             }         
         }
+        public override void draw(SpriteBatch b)
+        {
+            this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, -64f)), 0.0f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
+        }
+        public override void drawAboveFrontLayer(SpriteBatch b)
+        {
+            this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, this.yJumpOffset - 128f + this.yOffset)), this.position.Y / 10000f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
+        }
         public Critter getCritter()
         {
-
+            Log.info($"getting Critter: {data.BugModel.FullId}");
             if (data.Behavior.Classification == "Flying")
                 return new Floater(this);
             else if (data.Behavior.Classification == "Crawler")
                 return new Crawler(this);
             else
-                return new Floater(this);
+                return new Crawler(this);
         }
         //public override bool update(GameTime time, GameLocation environment)
         //{

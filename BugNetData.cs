@@ -33,15 +33,15 @@ namespace BugCatching
         }
         public void Edit<T>(IAssetData asset)
         {
-            //if (asset.AssetNameEquals("Data\\ObjectInformation"))
-            //{
-            //    var data = asset.AsDictionary<int, string>().Data;
-            //    Dictionary<int, string> BugsData = _helper.Data.ReadJsonFile<Dictionary<int, string>>("data\\bugs.json");
-            //    foreach (var bug in BugsData)
-            //    {
-            //        data[bug.Key] = bug.Value;
-            //    }
-            //}
+            if (asset.AssetNameEquals("Data\\ObjectInformation"))
+            {
+                var data = asset.AsDictionary<int, string>().Data;
+                
+                foreach (BugModel bugModel in BugCatchingMod.AllBugs) {
+                    data.Add(bugModel.ParentSheetIndex, bugModel.QuickItemDataString);
+                    
+                }
+            }
             if (asset.AssetNameEquals("TileSheets\\tools"))
             {
                 Texture2D toolSpriteSheet = asset.AsImage().Data;

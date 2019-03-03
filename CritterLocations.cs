@@ -4,13 +4,17 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Reflection;
+using Microsoft.Xna.Framework;
 
 using StardewValley;
 using Critter = StardewValley.BellsAndWhistles.Critter;
-using StardewValley.Locations;
+using StardewValley.TerrainFeatures;
 
 using StardewModdingAPI;
 using StardewModdingAPI.Framework.ModHelpers;
+
+using PyTK.Extensions;
+using PyTK.Types;
 
 namespace BugCatching
 {
@@ -19,12 +23,14 @@ namespace BugCatching
         public GameLocation Location = new GameLocation();
         public int CritterCount;
         public List<Critter> critterList;
+        public static List<CritterLocation> CritterHomes = new List<CritterLocation>();
 
         private static IModHelper Helper;
 
         public static void init(IModHelper helper)
         {
             Helper = helper;
+            
         }
         public CritterLocations(GameLocation gameLocation)
         {
@@ -49,21 +55,54 @@ namespace BugCatching
             newCritterList.Remove(critter);
             UpdateCritters(newCritterList);
         }
-        //public void AddCritterToGameLocation(GameLocation location, Critter critter)
-        //{
-        //    location.addCritter(critter);
-//        if (!this.largeTerrainFeatures[index2].getBoundingBox().Intersects(new Microsoft.Xna.Framework.Rectangle((int) tilePosition.X* 64, (int) tilePosition.Y * 64, 64, 64)) && !this.isTileLocationTotallyClearAndPlaceable(tilePosition))
-//            {
-//              flag = false;
-//              break;
-//            }
-//}
-//          if (flag)
-//          {
-//            this.critters.Add((Critter) new Rabbit(tilePosition, flip));
-//            break;
-//          }
-        //}
+        public void AddDiggableCritterToTerrainFeature(CritterEntry critter, Vector2 tilePosition, string layerName)
+        {
+            //bool flag = true;
+            int bugIndex = critter.BugModel.ParentSheetIndex;
+            TerrainFeature terrainFeature = this.Location.terrainFeatures[tilePosition];
+            Log.debug($"Terrain feature {terrainFeature.GetType()}");
+            //Location.setTileProperty((int)tilePosition.X, (int)tilePosition.Y, "Back", "Diggable", "T");
+            //Location.setTileProperty((int)tilePosition.X, (int)tilePosition.Y, "Back", "Passable", "T");
+            //Location.setTileProperty((int)tilePosition.X, (int)tilePosition.Y, "Back", "Treasure", $"Object {bugIndex}");
+            //var sObject = new StardewValley.Object(tilePosition, bugIndex, 0);
+            //Location.objects.Add(tilePosition, sObject);
+            CritterLocation critterLocation = new CritterLocation() { location = Location, layerName = layerName, tilePosition = tilePosition, CritterEntry = critter };
+            Log.info($"Registering critterLocation {critterLocation.location} {critterLocation.layerName} {critterLocation.tilePosition} {critterLocation.CritterEntry}");
+            CritterHomes.AddOrReplace(critterLocation);
+
+            new TileAction("disturbBug", DisturbBug).register();
+            //new TerrainSelector<TerrainFeature>(t => t== terrainFeature).whenAddedToLocation(TileAction.getCustomAction("disturbBug"));
+            this.Location.Map.addTouchAction(tilePosition, "disturbBug", "");
+            //TileAction stepOnFeature = new TileAction("DisturbBug", this.Location, tilePosition, "back" )
+            
+            
+
+            //this.Location.isTileLocationTotallyClearAndPlaceable(tilePosition)
+           // ButtonClick.UseToolButton.onTerrainClick<TerrainFeature>(TileAction.getCustomAction("")));
+        }
+        public bool DisturbBug(string action, GameLocation location, Vector2 tile, string layerName)
+        {
+            Log.debug($"{action} | {location} | {tile} | {layerName}");
+            bool flag = false;
+            CritterLocation locationEntry = new CritterLocation();
+            CritterEntry critterEntry = new CritterEntry();
+            //foreach(CritterLocation cL in CritterHomes)
+            //    Log.info($"{cL.location} {cL.tilePosition} {cL.layerName}");
+            
+            locationEntry = CritterHomes.Find(c => c.layerName == layerName && c.location == location && c.tilePosition == tile);
+            if (locationEntry != null)
+            {
+                Log.info("locationEntry found");
+                critterEntry = CritterEntry.critters.Find(ce => ce.Value == locationEntry.CritterEntry).Value;
+                Location.addCritter(critterEntry.makeCritter(tile * Game1.tileSize));
+                CritterHomes.Remove(locationEntry);
+                flag = true;
+
+            }
+            Log.info("locationEntry not found");
+            return flag;
+        }
+
 
         
         //public Dictionary<string, List<Critter>> getCritterDictionary(IModHelper helper)
@@ -78,5 +117,11 @@ namespace BugCatching
         //}
 
     }
-    
+    public class CritterLocation
+    {
+        public GameLocation location { get; set; } = new GameLocation();
+        public string layerName { get; set; }
+        public Vector2 tilePosition { get; set; } = new Vector2();
+        public CritterEntry CritterEntry { get; set; } = new CritterEntry();
+    }
 }
