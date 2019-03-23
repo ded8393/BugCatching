@@ -14,6 +14,9 @@ using PyTK.CustomElementHandler;
 using StardewValley;
 using Critter = StardewValley.BellsAndWhistles.Critter;
 
+using BugCatching.Classifications;
+
+
 namespace BugCatching
 {
     public static class BugApi
@@ -47,32 +50,21 @@ namespace BugCatching
                 Log.info("Parsed name: " + bugName + " tileIndex: " + tileIndex);
                 bugModel = createPlainBugModel(bugName, tileIndex.toInt());
                 return bugModel;
-            }
-            
-
-            //if (bugId.Contains("Plain"))
-            //{
-               
-            //}
-            
-                
+            }     
         }
 
         public static Bug getBugFromCritterType(Critter critter)
         {
-            var bug = new Bug();
-            
             BugModel data = createBugModelFromCritter(critter);
-            bug = new Bug(data);
-            return bug;
+            return new Bug(data);
         }
 
         public static BugModel createBugModelFromCritter(Critter critter)
         {
             string bugName = critter.GetType().ToString().Split('.').Last();
-            if (bugName == "Floater")
+            if (Behavior.AllClassifications.Contains(bugName))
             {
-                 Floater f = (Floater)critter;
+                 CustomCritter f = (CustomCritter)critter;
                  return (BugModel) f.data.BugModel;
            }
             int TileIndex = Helper.Reflection.GetField<int>(critter, "baseFrame").GetValue();
@@ -83,21 +75,14 @@ namespace BugCatching
 
         public static BugModel createPlainBugModel(string bugName, int tileIndex)
         {
-            string plainBugDescription = "Just a plain old " + bugName;
-            int plainBugPrice = 100;
-            string plainBugQuickItemString = bugName + "/100/-50/Bug/Just a Plain " + bugName + "/true/true/0/" + bugName;
-            string plainBugTextureAsset = "Assets/critters.png";
-            string[] plainBugIdList = { "Plain", bugName, tileIndex.ToString()};
-            string plainBugId = String.Join(".", plainBugIdList);
-            SpriteData plainBugSpriteData= new SpriteData() { TileIndex = tileIndex, TextureAsset = plainBugTextureAsset, FrameHeight = 16, FrameWidth = 16 };
-            BugModel plainBugModel = new BugModel() { Name = bugName, Id = plainBugId, Description = plainBugDescription, Price = plainBugPrice, QuickItemDataString = plainBugQuickItemString, SpriteData = plainBugSpriteData };
+            string plainBugDescription = $"Just a plain old {bugName}";
+            string plainBugQuickItemString = $"{bugName}/100/-50/Bug/Just a Plain {bugName}/true/true/0/{bugName}";
+
+            SpriteData plainBugSpriteData= new SpriteData() { TileIndex = tileIndex, TextureAsset = "Assets/critters.png", FrameHeight = 16, FrameWidth = 16 };
+            BugModel plainBugModel = new BugModel() { Name = bugName, Id = $"Plain.{bugName}.{tileIndex}", Description = plainBugDescription, Price = 100, QuickItemDataString = plainBugQuickItemString, SpriteData = plainBugSpriteData };
 
             if (BugCatchingMod.AllBugs.Find(b => b.FullId == plainBugModel.FullId) != null)
-            {
-                Log.debug("Found bug in AllBugs");
                 return plainBugModel;
-            }
-                
             else
             {
                 Log.debug("Adding bug to AllBugs");
@@ -107,6 +92,27 @@ namespace BugCatching
 
         }
 
+        public static CustomCritter getCustomCritter(GameLocation location, CritterEntry data, Vector2 position)
+        {
+            switch (data.Behavior.Classification)
+            {
+                case "Crawler":
+                    return new Crawler(location, position, data);
+                case "Floater":
+
+                default:
+                    return new CustomCritter(location, position, data);
+            }
+        }
+
 
     }
+    //public static class CritterFactory
+    //{
+    //    public static Crawler GetCrawler(Vector2 position, CritterEntry data)
+    //    {
+    //        return new Crawler(position, data);
+    //    }
+
+    //}
 }

@@ -112,10 +112,10 @@ namespace BugCatching
                     {
                         Monitor.Log(entry.Value.BugModel.Name + " at location " + spawnLoc.ToString());
                         // this.map.GetLayer("Back").Tiles[xLocation, yLocation].Properties.Add("Treasure", new PropertyValue("Object " + (object) "bug"));
-                        if (entry.Value.Behavior.Classification == "Digger")
-                            CritterLocations.AddDiggableCritterToTerrainFeature(entry.Value, spawnLoc, "Back");
-                        else
-                            args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc));
+                        //if (entry.Value.Behavior.Classification == "Digger")
+                        //    CritterLocations.AddDiggableCritterToLocation(entry.Value, spawnLoc, "Back");
+                        //else
+                            args.NewLocation.addCritter(entry.Value.makeCritter(args.NewLocation, spawnLoc));
                     }
                     
                 }

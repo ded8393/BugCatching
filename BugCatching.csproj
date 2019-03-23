@@ -66,6 +66,7 @@
     <Compile Include="BugNetData.cs" />
     <Compile Include="BugCatchingMod.cs" />
     <Compile Include="BugNetTool.cs" />
+    <Compile Include="Classifications\Crawler.cs" />
     <Compile Include="CritterEntry.cs" />
     <Compile Include="CritterLocations.cs" />
     <Compile Include="CustomCritter.cs" />

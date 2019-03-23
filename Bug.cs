@@ -52,8 +52,7 @@ namespace BugCatching
             build(AllBugs.Find(b => b.FullId == data.id));
 
         }
-
-
+        
         public Bug(CustomObjectData data, Vector2 tileLocation, int stack)
         {
             sObject = new SObject(tileLocation, data.sdvId, stack);
@@ -70,6 +69,11 @@ namespace BugCatching
         public Bug(BugModel bugModel)
         {
             build(bugModel);
+        }
+
+        public static explicit operator Bug(CustomCritter critter)
+        {
+            return new Bug(critter.data);  
         }
 
         public override string getCategoryName()
@@ -208,7 +212,7 @@ namespace BugCatching
                 livingBug = CritterEntry.critters.Find(ce => ce.Value.BugModel.FullId == this.bugModel.FullId).Value;
             }
                
-            location.addCritter(livingBug.makeCritter(new Vector2(x, y)));
+            location.addCritter(livingBug.makeCritter(location, new Vector2(x, y)));
             return true;
         }
 

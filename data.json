@@ -1,0 +1,23 @@
+﻿{
+    "AllBugs": [
+      {
+        "Id": 0,
+        "Name": "Butterfly",
+        "Description": "its so pretty",
+        "TextureAsset": "Assets/critters.png",
+        "TileIndex": 152,
+        "OriginalWidth": 16,
+        "QuickItemDataString": "Butterfly/500/-300/Bug/its so pretty/true/true/0/Butterfly"
+
+      },
+      {
+        "Id": 1,
+        "Name": "Gembert",
+        "Description": "The Royal Bug, His Truly",
+        "TextureAsset": "Assets/gembert.png",
+        "TileIndex": 0,
+        "OriginalWidth": 16,
+        "QuickItemDataString": "Gembert/6669/-300/Bug/The Royal Bug, His Truly/true/true/0/Gembert"
+      }
+    ]
+}

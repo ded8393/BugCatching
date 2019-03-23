@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Critter = StardewValley.BellsAndWhistles.Critter;
 
 namespace BugCatching
 {
@@ -21,5 +22,7 @@ namespace BugCatching
                 list[n] = value;
             }
         }
+        
     }
+
 }

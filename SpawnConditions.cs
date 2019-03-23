@@ -34,6 +34,7 @@ namespace BugCatching
             public string PropertyName { get; set; } = "";
             public string IsType { get; set; } = "";
             public string IsValue { get; set; } = "";
+            public bool isMain { get; set; } = false;
 
             //modified from critterEntry.pickSpot
             public Vector2? checkLocation(SpawnConditions spawnConditions, GameLocation loc)

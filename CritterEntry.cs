@@ -51,11 +51,11 @@ namespace BugCatching
 
             return spawnSpots;
         }
-        public virtual Critter makeCritter(Vector2 pos)
+        public virtual Critter makeCritter(GameLocation location, Vector2 pos)
         {
             var position = pos + new Vector2(1, 1) * (Game1.tileSize / 2);
-            CustomCritter critter =  new CustomCritter(pos + new Vector2(1, 1) * (Game1.tileSize / 2), this);
-            return critter.getCritter();
+            CustomCritter critter =  new CustomCritter(location, pos + new Vector2(1, 1) * (Game1.tileSize / 2), this);
+            return critter;
         }
 
         internal static Dictionary<string, CritterEntry> critters = new Dictionary<string, CritterEntry>();

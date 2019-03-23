@@ -115,7 +115,7 @@
       },
 
 
-      "SpawnAttempts": 90,
+      "SpawnAttempts": 9,
       "Behavior": {
         "Classification": "Flying",
         "NumFrames": 4
