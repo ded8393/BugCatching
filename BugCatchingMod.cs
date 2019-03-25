@@ -67,7 +67,7 @@ namespace BugCatching
             Skills.RegisterSkill(skill = new BugCatchingSkill());
 
         }
-        public void LoadCritters(object sender, StardewModdingAPI.Events.UpdateTickedEventArgs e)
+        public void LoadCritters(object sender, UpdateTickedEventArgs e)
         {
             BugNetData data = _helper.Data.ReadJsonFile<BugNetData>("Assets/critters.json");
             int Id = -666;
@@ -110,10 +110,12 @@ namespace BugCatching
                 {
                     foreach (var spawnLoc in spawnLocs)
                     {
-                        Monitor.Log(entry.Value.BugModel.Name + " at location " + spawnLoc.ToString());
+                        
+                        var spawnTile = spawnLoc / Game1.tileSize;
+                        Monitor.Log(entry.Value.BugModel.Name + " at location " + spawnTile.ToString());
                         // this.map.GetLayer("Back").Tiles[xLocation, yLocation].Properties.Add("Treasure", new PropertyValue("Object " + (object) "bug"));
                         if (entry.Value.Behavior.Classification == "Digger")
-                            CritterLocations.AddDiggableCritterToTerrainFeature(entry.Value, spawnLoc, "Back");
+                            CritterLocations.AddDiggableCritterToLocation(entry.Value, spawnTile, "Back");
                         else
                             args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc));
                     }

@@ -13,7 +13,9 @@ namespace BugCatching
     {
         public CritterEntry data; 
         private LightSource light;
-
+        public int identifier;
+        public float xVelocity;
+        public float yVelocity;
         public CustomCritter(CritterEntry data)
         {
             this.data = data;
@@ -48,9 +50,9 @@ namespace BugCatching
         {
             this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, this.yJumpOffset - 128f + this.yOffset)), this.position.Y / 10000f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
         }
+
         public Critter getCritter()
         {
-            Log.info($"getting Critter: {data.BugModel.FullId}");
             if (data.Behavior.Classification == "Flying")
                 return new Floater(this);
             else if (data.Behavior.Classification == "Crawler")
@@ -58,6 +60,7 @@ namespace BugCatching
             else
                 return new Crawler(this);
         }
+
         //public override bool update(GameTime time, GameLocation environment)
         //{
         //      if (light != null)
@@ -112,27 +115,28 @@ namespace BugCatching
         public override bool update(GameTime time, GameLocation environment)
         {
             this.crawlTimer -= time.ElapsedGameTime.Milliseconds;
+            float motion = (float)Game1.random.NextDouble() / 2f;
+
             if (this.crawlTimer <= 0 && this.sprite.CurrentAnimation == null)
             {
 
                 ////todo: add check for terrain features//debris
+                this.position.X += this.flip ? -1f * motion : motion;
 
-                this.position.X += this.flip ? -8f : 8f;
-                if (base.update(time, environment))
+                List<FarmerSprite.AnimationFrame> Movement = new List<FarmerSprite.AnimationFrame>();
+                for (int i = 1; i < this.data.Behavior.NumFrames; i++)
                 {
-                    this.flip = !this.flip;
-                    this.position.X += this.flip ? -8f : 8f;
+                    this.crawlSpeed = Game1.random.Next(200, 350);
+                    Movement.Add(new FarmerSprite.AnimationFrame(this.baseFrame + i, this.crawlSpeed));
                 }
-                    
-                this.sprite.setCurrentAnimation(new List<FarmerSprite.AnimationFrame>()
-                {
-                    new FarmerSprite.AnimationFrame(this.baseFrame + 1, this.crawlSpeed),
-                    new FarmerSprite.AnimationFrame(this.baseFrame + 2, this.crawlSpeed ),
-                    new FarmerSprite.AnimationFrame(this.baseFrame, this.crawlSpeed, false, false, new AnimatedSprite.endOfAnimationBehavior(this.doneWithJump), false)
 
-                });
+                Movement.Add(new FarmerSprite.AnimationFrame(this.baseFrame, this.crawlSpeed * 2, false, false, new AnimatedSprite.endOfAnimationBehavior(this.doneWithJump), false));
+                this.sprite.setCurrentAnimation(Movement);
+
                 this.crawlTimer = 200;
             }
+
+            this.position.X += this.flip ? -1f * motion : motion;
 
             return base.update(time, environment);
         }

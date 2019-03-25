@@ -46,19 +46,20 @@ namespace BugCatching
             {
                 var spawnSpot = SpawnConditions.checkLocation(loc);
                 if (spawnSpot != null)
-                    spawnSpots.Add((Vector2)spawnSpot);
+                    spawnSpots.Add((Vector2)spawnSpot * Game1.tileSize);
             }
-
             return spawnSpots;
         }
+
         public virtual Critter makeCritter(Vector2 pos)
         {
             var position = pos + new Vector2(1, 1) * (Game1.tileSize / 2);
-            CustomCritter critter =  new CustomCritter(pos + new Vector2(1, 1) * (Game1.tileSize / 2), this);
+            CustomCritter critter = new CustomCritter(position, this);
             return critter.getCritter();
         }
 
         internal static Dictionary<string, CritterEntry> critters = new Dictionary<string, CritterEntry>();
+
         public static void Register( CritterEntry entry )
         {
             critters.Add(entry.BugModel.Id, entry);
