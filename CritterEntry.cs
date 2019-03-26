@@ -55,7 +55,13 @@ namespace BugCatching
         {
             var position = pos + new Vector2(1, 1) * (Game1.tileSize / 2);
             CustomCritter critter = new CustomCritter(position, this);
-            return critter.getCritter();
+            if (this.Behavior.Classification == "Flying")
+                return new Floater(critter);
+            else if (this.Behavior.Classification == "Crawler")
+                return new Crawler(position, this);
+            else
+                return new Crawler(position, this);
+
         }
 
         internal static Dictionary<string, CritterEntry> critters = new Dictionary<string, CritterEntry>();

@@ -12,18 +12,12 @@ namespace BugCatching
     public class CustomCritter : Critter
     {
         public CritterEntry data; 
-        private LightSource light;
+        //private LightSource light;
         public int identifier;
         public float xVelocity;
         public float yVelocity;
         public CustomCritter(CritterEntry data)
         {
-            this.data = data;
-        }
-
-        public CustomCritter( Vector2 pos, CritterEntry data )
-        {
-            this.position = this.startingPosition = pos;
             this.data = data;
             this.flip = Game1.random.NextDouble() < 0.5;
             var tex = BugCatchingMod.instance.Helper.Content.Load<Texture2D>(data.BugModel.SpriteData.TextureAsset);
@@ -32,15 +26,13 @@ namespace BugCatching
             this.baseFrame = data.BugModel.SpriteData.TileIndex;
             this.sprite = new AnimatedSprite(texStr, baseFrame, data.BugModel.SpriteData.FrameWidth, data.BugModel.SpriteData.FrameHeight);
 
-            if ( data.Light != null )
-            {
-                var col = new Color(255 - data.Light.Color.R, 255 - data.Light.Color.G, 255 - data.Light.Color.B);
-                if (data.Light.VanillaLightId != -1)
-                    light = new LightSource(data.Light.VanillaLightId, position, data.Light.Radius, col);
-                else
-                    light = new LightSource(4, position, data.Light.Radius, col);
-                Game1.currentLightSources.Add(light);
-            }         
+        }
+
+        public CustomCritter( Vector2 position, CritterEntry data )
+            :this(data)
+        {
+            this.position = this.startingPosition = position;
+      
         }
         public override void draw(SpriteBatch b)
         {
@@ -50,16 +42,31 @@ namespace BugCatching
         {
             this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, this.yJumpOffset - 128f + this.yOffset)), this.position.Y / 10000f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
         }
-
-        public Critter getCritter()
+        public void setTrajectory(int xVelocity, int yVelocity)
         {
-            if (data.Behavior.Classification == "Flying")
-                return new Floater(this);
-            else if (data.Behavior.Classification == "Crawler")
-                return new Crawler(this);
-            else
-                return new Crawler(this);
+            this.setTrajectory(new Vector2((float)xVelocity, (float)yVelocity));
         }
+
+        public virtual void setTrajectory(Vector2 trajectory)
+        {
+            this.xVelocity = trajectory.X;
+            this.yVelocity = trajectory.Y;
+        }
+
+        protected void applyVelocity(GameLocation currentLocation)
+        {
+            Rectangle boundingBox = this.getBoundingBox(0, 0);
+            boundingBox.X += (int)this.xVelocity;
+            boundingBox.Y -= (int)this.yVelocity;
+            if (currentLocation == null || !currentLocation.isCollidingPosition(boundingBox, Game1.viewport, false, 0, false))
+            {
+                this.position.X += this.xVelocity;
+                this.position.Y -= this.yVelocity;
+            }
+            this.xVelocity = (float)(int)((double)this.xVelocity - (double)this.xVelocity / 2.0);
+            this.yVelocity = (float)(int)((double)this.yVelocity - (double)this.yVelocity / 2.0);
+        }
+        
 
         //public override bool update(GameTime time, GameLocation environment)
         //{
@@ -90,23 +97,17 @@ namespace BugCatching
             this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, this.yJumpOffset - 128f + this.yOffset)), this.position.Y / 10000f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
         }
     }
-    public class Crawler : Critter
+    public class Crawler : CustomCritter
     {
-        public CritterEntry data { get; set; } = new CritterEntry();
-
         private int crawlTimer;
         private int crawlSpeed = 50;
 
-        public Crawler(CustomCritter critter)
+        public Crawler(Vector2 position, CritterEntry data)
+            :base(position, data)
         {
-            this.data = critter.data;
-            this.sprite = critter.sprite;
             this.sprite.loop = false;
-            this.flip = critter.flip;
             this.baseFrame = this.sprite.currentFrame;
-            this.position = critter.startingPosition;
             this.crawlSpeed = Game1.random.Next(200, 350);
-            this.startingPosition = this.position;
         }
         public void doneWithJump(Farmer who)
         {

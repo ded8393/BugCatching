@@ -49,6 +49,7 @@ namespace BugCatching
                 {
                     List<Vector2> viableLocations = new TerrainSelector<TerrainFeature>(o => o.GetType().ToString().Split('.').Last().ToString() == AttractorName).keysIn(loc);
                     viableLocations.Shuffle();
+                    Log.info($"location {viableLocations.First()} for attractor {AttractorName}");
                     return viableLocations.First(); //* Game1.tileSize;
 
                 }
@@ -58,8 +59,8 @@ namespace BugCatching
                     keys.Shuffle();
                     foreach (var key in keys)
                     {
-                        string featureName = loc.objects[key].displayName;
-                        if (AttractorName != null && AttractorName != "" && AttractorName == featureName)
+                        string objectName = loc.objects[key].displayName;
+                        if (AttractorName != null && AttractorName != "" && AttractorName == objectName)
                         {
                             if (checkAttractor(loc.objects[key]))
                                 return key * Game1.tileSize;
