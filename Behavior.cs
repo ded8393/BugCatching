@@ -14,7 +14,7 @@ namespace BugCatching
 {
     public class Behavior
     {
-        public string Classification { get; set; } = "Flying";
+        
         public int NumFrames { get; set; } = 3;
 
     }

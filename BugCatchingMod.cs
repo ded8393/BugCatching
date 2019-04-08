@@ -36,6 +36,7 @@ namespace BugCatching
         public static BugNetData bugNetData;
         public static List<BugModel> AllBugs = new List<BugModel>();
         public static List<CritterEntry> AllCritters = new List<CritterEntry>();
+        public static List<NetModel> AllNets = new List<NetModel>();
         public static BugCatchingSkill skill;
 
         internal static DataInjector DataInjector;
@@ -47,21 +48,12 @@ namespace BugCatching
             _monitor = Monitor;
             ModId = _helper.ModRegistry.ModID;
 
-
-            BugNetTool bugnet = new BugNetTool();
-            new InventoryItem(bugnet, 100).addToNPCShop("Pierre");
-            // todo change to .Tool v
-            CustomObjectData.newObject(ModId + "Tool", BugNetTool.texture, Color.White, "Bug Net", "Wonder what I can do with this?", 5, customType: typeof(BugNetTool));
-
-
             _helper.Events.GameLoop.UpdateTicked += LoadCritters;
             BugApi.init(_helper);
             CritterLocations.init(_helper);
-            //PyLua.registerType(typeof(BugNetTool), registerAssembly: true);
-            //PyLua.registerType(typeof(Bug), registerAssembly: true);
 
             _helper.Events.Player.Warped += onLocationChanged;
-
+            _helper.Events.World.DebrisListChanged += catchBugDebris;
             DataInjector = new DataInjector(_helper);
             Game1.ResetToolSpriteSheet();
             Skills.RegisterSkill(skill = new BugCatchingSkill());
@@ -79,12 +71,25 @@ namespace BugCatching
                 CritterEntry.Register(critter);
                 var bugModel = new BugModel();
                 bugModel = critter.BugModel;
+                //is this V necessary ?
                 bugModel.ParentSheetIndex = Id;
                 AllBugs.AddOrReplace(bugModel);
                 CustomObjectData.newObject(bugModel.FullId,  bugModel.SpriteData.getTexture(), Color.White, bugModel.Name, bugModel.Description, bugModel.SpriteData.TileIndex, price:bugModel.Price, customType: typeof(Bug));
                 //AssetData[bugData.sdvId] = bugModel.QuickItemDataString;
                 Monitor.Log("Added: " + bugModel.Name + " id " + bugModel.FullId.ToString());
                 Id--;
+            }
+
+            foreach(NetModel netModel in data.AllNets)
+            {
+                
+                AllNets.AddOrReplace(netModel);
+                //net.ParentSheetIndex = Id;
+                var net = new BugNetTool(netModel);
+                CustomObjectData.newBigObject(netModel.FullId, net.loadTexture(), Color.White, netModel.Name, netModel.Description, netModel.TileIndex, netModel.Name, false, 0, false, false, "Crafting -9", 0, -300, new CraftingData(netModel.Name, netModel.Recipe), typeof(BugNetTool));
+                Log.info($"adding {netModel.FullId} with recipe {netModel.Recipe}");
+
+                //CustomObjectData.newObject($"{netModel.FullId}.Tool", new BugNetTool(netModel).loadTexture(), Color.White, netModel.Name, netModel.Description, netModel.TileIndex, "", "Net", 1, -300, craftingData: new CraftingData($"{netModel.FullId}.Tool", netModel.Recipe), customType: typeof(BugNetTool));
             }
 
             //_helper.Data.WriteJsonFile("data\\bugs.json", AssetData);
@@ -105,24 +110,31 @@ namespace BugCatching
             var CritterLocations = new CritterLocations(args.NewLocation);
             foreach (var entry in CritterEntry.critters)
             {
-                var spawnLocs = entry.Value.attemptSpawn(args.NewLocation);
-                if (spawnLocs.Count != 0)
+                var spawnTiles = entry.Value.attemptSpawn(args.NewLocation);
+                if (spawnTiles.Count != 0)
                 {
-                    foreach (var spawnLoc in spawnLocs)
+                    foreach (var tile in spawnTiles)
                     {
-                        
-                        var spawnTile = spawnLoc / Game1.tileSize;
-                        Monitor.Log(entry.Value.BugModel.Name + " at location " + spawnTile.ToString());
-                        // this.map.GetLayer("Back").Tiles[xLocation, yLocation].Properties.Add("Treasure", new PropertyValue("Object " + (object) "bug"));
-                        if (entry.Value.Behavior.Classification == "Digger")
-                            CritterLocations.AddDiggableCritterToLocation(entry.Value, spawnTile, "Back");
+                        if (tile == null)
+                            continue;
+                        Monitor.Log($"Adding {entry.Value.BugModel.Name} at location {tile}");
+                        if (entry.Value.BugModel.Classification == "Digger")
+                            CritterLocations.AddDiggableCritterToLocation(entry.Value, tile, "Back");
                         else
-                            args.NewLocation.addCritter(entry.Value.makeCritter(spawnLoc));
+                            args.NewLocation.addCritter(entry.Value.makeCritter(tile));
                     }
                     
                 }
                 
             }
+        }
+        private void catchBugDebris(object sender, DebrisListChangedEventArgs args)
+        {
+            if (!args.IsCurrentLocation)
+                return;
+            foreach (Debris debris in args.Added)
+                if (debris.item.getCategoryName() == "Bug")
+                    args.Location.debris.Remove(debris);
         }
 
     }

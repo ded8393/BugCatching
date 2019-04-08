@@ -12,8 +12,27 @@ namespace BugCatching
 {
     public class BugNetData
     {
+        public List<NetModel> AllNets { get; set; } = new List<NetModel>();
         public List<CritterEntry> AllCritters { get; set; } = new List<CritterEntry>();
     }
+
+    public class NetModel
+    {
+        public string Name { get; set; }
+        public string Id { get; set; }
+        public int ParentSheetIndex { get; set; }
+        public string FullId
+        {
+            get {
+                return $"{BugCatchingMod.ModId}.{Id}";
+            }
+        } 
+        public string Description { get; set;  }
+        public string QuickItemDataString { get; set; }
+        public int TileIndex { get; set; } = 504;
+        public string Recipe { get; set; }
+    }
+
     public class DataInjector : IAssetEditor
     {
         internal IModHelper Helper;

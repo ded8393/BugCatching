@@ -1,18 +1,16 @@
-﻿using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using Netcode;
+﻿using System.Collections.Generic;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework;
 
 using StardewValley;
 using StardewValley.Tools;
 using StardewValley.Objects;
+
 using SObject = StardewValley.Object;
 using Critter = StardewValley.BellsAndWhistles.Critter;
+
 using PyTK.CustomElementHandler;
-using PyTK.Types;
-using customObj = PyTK.CustomElementHandler.CustomObjectData;
+using PyTK.Extensions;
 using SpaceCore;
 
 using StardewModdingAPI;
@@ -22,9 +20,17 @@ namespace BugCatching
     public class BugNetTool : Hoe, ISaveElement, ICustomObject
     {
         internal IMonitor Monitor = BugCatchingMod._monitor;
-
+  
         internal List<BugModel> AllBugs = BugCatchingMod.AllBugs;
-        internal static Texture2D texture;
+        internal List<NetModel> AllNets = BugCatchingMod.AllNets;
+
+        public SObject sObject;
+        public CustomObjectData data { get; set; }
+        public PySync syncObject { get; set; }
+
+        public NetModel netModel;
+        public virtual Texture2D texture { get; private set; }
+
         private bool inUse;
         private static bool caughtBug;
         private static Critter Critter;
@@ -32,32 +38,58 @@ namespace BugCatching
         public override string DisplayName { get => "Bug Net"; set => base.DisplayName = "Bug Net"; }
         public override string getDescription()
         {
-            string text = description;
+            string text = netModel.Description;
             SpriteFont smallFont = Game1.smallFont;
             int width = Game1.tileSize * 4 + Game1.tileSize / 4;
             return Game1.parseText(text, smallFont, width);
         }
 
-        internal static void loadTextures()
+        public Texture2D loadTexture()
         {
             texture = BugCatchingMod._helper.Content.Load<Texture2D>(@"Assets/bugnet.png");
+            return texture;
         }
-
         public BugNetTool()
-            : base()
+             : base()
         {
-            build();
+        }
+        public BugNetTool(NetModel netModel)
+           :this()
+        {
+            build(netModel);
         }
 
-        public BugNetTool(CustomObjectData data) : this() { }
-
-        private void build()
+        public BugNetTool(CustomObjectData data)
+            :this()
         {
-            if (texture == null)
-                loadTextures();
+            sObject = new SObject(data.sdvId, 1);
+            this.data = data;
+            build(AllNets.Find(n => n.FullId == data.id));
+        }
+        public BugNetTool(CustomObjectData data, Vector2 tileLocation)
+            :this()
+        {
+            sObject = new SObject(tileLocation, data.sdvId);
+            this.data = data;
+            build(AllNets.Find(n => n.FullId == data.id));
+        }
 
-            Name = "Bug Net";
-            description = "catch critters";
+        private void build(NetModel netModel)
+        {
+            this.netModel = netModel;
+            if (data == null)
+            {
+                data = CustomObjectData.collection.ContainsKey(netModel.FullId) ? CustomObjectData.collection[netModel.FullId] : new CustomObjectData(netModel.FullId, netModel.QuickItemDataString, this.loadTexture(), Color.White, netModel.TileIndex, true, typeof(BugNetTool));
+            }
+            if (sObject == null)
+            {
+                sObject = new SObject(data.sdvId, 1);
+            }
+            if (texture == null)
+                loadTexture();
+
+            Name = netModel.Name;
+            description = netModel.Description;
 
             InitialParentTileIndex = 504;
             CurrentParentTileIndex = 504;
@@ -75,7 +107,7 @@ namespace BugCatching
 
         public override Item getOne()
         {
-            return new BugNetTool();
+            return new BugNetTool(netModel);
         }
 
         public override bool canBeTrashed()
@@ -149,6 +181,7 @@ namespace BugCatching
             CritterLocations critterLocations = new CritterLocations(location);
             critterLocations.RemoveThisCritter(Critter);
             who.addItemByMenuIfNecessary((Item) BugInNet.getOne());
+
             who.AddCustomSkillExperience(BugCatchingMod.skill, BugInNet.bugModel.Price);
             Log.info("player experience: " + Game1.player.GetCustomSkillExperience(BugCatchingMod.skill).ToString());
             Critter = (Critter) null;
@@ -176,22 +209,34 @@ namespace BugCatching
         public Dictionary<string, string> getAdditionalSaveData()
         {
             Dictionary<string, string> savedata = new Dictionary<string, string>();
-            savedata.Add("name", Name);
+            savedata.Add("id", netModel.FullId);
+            savedata.Add("tileLocation", sObject.TileLocation != null ? sObject.TileLocation.X + "," + sObject.TileLocation.Y : "0,0");
             return savedata;
         }
 
         public dynamic getReplacement()
         {
-            return new Chest(true);
+            Chest r = new Chest(true);
+            r.items.Add(sObject.getOne());
+            r.TileLocation = sObject.TileLocation;
+            return r;
         }
 
         public void rebuild(Dictionary<string, string> additionalSaveData, object replacement)
         {
-            build();
+            Log.info($"rebuilding : {additionalSaveData["id"]}");
+            NetModel netModel = AllNets.Find(n => n.FullId == additionalSaveData["id"]);
+            build(netModel);
+            sObject.TileLocation = additionalSaveData["tileLocation"].Split(',').toList(i => i.toInt()).toVector<Vector2>();
+
         }
         public ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
         {
-            return new BugNetTool();
+            NetModel netModel = AllNets.Find(n => n.FullId == additionalSaveData["id"]);
+            //CustomObjectData data = new CustomObjectData();
+            //data = CustomObjectData.collection.Find(o => o.Key == netModel.FullId).Value;
+            //Vector2 tileLoc = additionalSaveData["tileLocation"].Split(',').toList(i => i.toInt()).toVector<Vector2>();
+            return new BugNetTool(netModel);
         }
 
     }

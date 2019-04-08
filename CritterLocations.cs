@@ -108,7 +108,7 @@ namespace BugCatching
                 Log.info("locationEntry found");
                 CritterEntry critterEntry = new CritterEntry();
                 critterEntry = CritterEntry.critters.Find(ce => ce.Value == locationEntry.CritterEntry).Value;
-                Location.addCritter(critterEntry.makeCritter(tile * Game1.tileSize + new Vector2(Game1.tileSize / 2, Game1.tileSize / 2)));
+                Location.addCritter(critterEntry.makeCritter(tile + new Vector2(0.5f, 0.5f)));
                 CritterHomes.Remove(locationEntry);
                 flag = true;
 

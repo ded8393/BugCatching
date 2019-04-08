@@ -22,6 +22,7 @@ namespace BugCatching
             }
         } 
         public string Description { get; set;  }
+        public string Classification { get; set; } = "Flying";
         public string QuickItemDataString { get; set; }
         public int Price { get; set; } = 100;
         

@@ -1,16 +1,31 @@
 {
+  "AllNets": [
+    {
+      "Name": "Trash Net",
+      "Id": "001",
+      "Description": "its worth a try...",
+      "QuickItemDataString": "Trash Net/10/-300/Net/its worth a try.../false/false/0/Trash Net",
+      "TileIndex": 5,
+      "Recipe": "168 1 169 1"
+    },
+    {
+      "Name": "Cloth Net",
+      "Id": "002",
+      "Description": "catch bugs",
+      "QuickItemDataString": "Cloth Net/10/-300/Net/catch bugs/false/false/0/Cloth Net",
+      "TileIndex": 5,
+      "Recipe": "428 1 294 1"
+    }
+  ],
   "AllCritters": [
     {
       "BugModel": {
         "Id": "0",
         "Name": "Monarch Butterfly",
         "Description": "looka this lil bugger here, eh?",
+        "Classification": "Flying",
         "SpriteData": {
           "TextureAsset": "Assets/monarch.png",
-          "TileIndex": 0,
-          "Variations": 0,
-          "FrameWidth": 32,
-          "FrameHeight": 32,
           "Scale": 1
         },
         "Price": 1000,
@@ -35,7 +50,7 @@
 
       "SpawnAttempts": 9,
       "Behavior": {
-        "Classification": "Flying",
+       
         "NumFrames": 4
       }
     },
@@ -44,14 +59,14 @@
         "Id": "1",
         "Name": "Inchworm",
         "Description": "only an inch long",
+        "Classification": "Crawler",
         "SpriteData": {
           "TextureAsset": "Assets/Inchworm.png",
           "TileIndex": 0,
           "Variations": 0,
           "FrameWidth": 32,
           "FrameHeight": 32,
-          "Scale": 1,
-          "Flying": false
+          "Scale": 1
         },
         "Price": 100,
         "QuickItemDataString": "Inchworm/100/-50/Bug/only an inch long/true/true/0/Inchworm"
@@ -76,7 +91,6 @@
 
       "SpawnAttempts": 9,
       "Behavior": {
-        "Classification": "Crawler",
         "NumFrames": 3
       }
     },
@@ -85,6 +99,7 @@
         "Id": "2",
         "Name": "Eastern-Tailed Blue",
         "Description": "With this coloration, must be a male.",
+        "Classification": "Flying",
         "Price": 2000,
         "QuickItemDataString": "Eastern-Tailed Blue Butterfly/700/-200/Bug/With this coloration, must be a male./true/true/0/Eastern-Tailed Blue Butterfly",
         "SpriteData": {
@@ -117,7 +132,6 @@
 
       "SpawnAttempts": 90,
       "Behavior": {
-        "Classification": "Flying",
         "NumFrames": 4
       }
     },
@@ -126,6 +140,7 @@
         "Id": "3",
         "Name": "Dung Beetle",
         "Description": "Um... You should probably wash your net.",
+        "Classification": "Digger",
         "SpriteData": {
           "TextureAsset": "Assets/dungBeetle.png",
           "TileIndex": 0,
@@ -158,7 +173,6 @@
 
       "SpawnAttempts": 9,
       "Behavior": {
-        "Classification": "Digger",
         "NumFrames": 9
       }
     }

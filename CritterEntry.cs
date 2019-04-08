@@ -46,18 +46,19 @@ namespace BugCatching
             {
                 var spawnSpot = SpawnConditions.checkLocation(loc);
                 if (spawnSpot != null)
-                    spawnSpots.Add((Vector2)spawnSpot * Game1.tileSize);
+                    spawnSpots.Add((Vector2)spawnSpot);
             }
             return spawnSpots;
         }
 
-        public virtual Critter makeCritter(Vector2 pos)
+        public virtual Critter makeCritter(Vector2 tile)
         {
-            var position = pos + new Vector2(1, 1) * (Game1.tileSize / 2);
+            // absolute position
+            var position = tile * Game1.tileSize;
             CustomCritter critter = new CustomCritter(position, this);
-            if (this.Behavior.Classification == "Flying")
+            if (this.BugModel.Classification == "Flying")
                 return new Floater(critter);
-            else if (this.Behavior.Classification == "Crawler")
+            else if (this.BugModel.Classification == "Crawler")
                 return new Crawler(position, this);
             else
                 return new Crawler(position, this);

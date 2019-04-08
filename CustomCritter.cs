@@ -36,6 +36,7 @@ namespace BugCatching
         }
         public override void draw(SpriteBatch b)
         {
+            //layer depth (float) ((double) this.position.Y / 10000.0 + (double) this.position.X / 100000.0) FROM CRITTER
             this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, -64f)), 0.0f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
         }
         public override void drawAboveFrontLayer(SpriteBatch b)
@@ -66,13 +67,7 @@ namespace BugCatching
             this.xVelocity = (float)(int)((double)this.xVelocity - (double)this.xVelocity / 2.0);
             this.yVelocity = (float)(int)((double)this.yVelocity - (double)this.yVelocity / 2.0);
         }
-        
 
-        //public override bool update(GameTime time, GameLocation environment)
-        //{
-        //      if (light != null)
-        //        light.position.Value = this.position;
-        //}
     }
 
     public class Floater : Butterfly

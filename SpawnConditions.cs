@@ -42,16 +42,19 @@ namespace BugCatching
                 if (AttractorType == "random")
                 {
                     if (checkAttractor(null))
-                        return loc.getRandomTile() * Game1.tileSize;
+                        return loc.getRandomTile();
                     return null;
                 }
                 else if (AttractorType == "terrainfeature")
                 {
-                    List<Vector2> viableLocations = new TerrainSelector<TerrainFeature>(o => o.GetType().ToString().Split('.').Last().ToString() == AttractorName).keysIn(loc);
-                    viableLocations.Shuffle();
-                    Log.info($"location {viableLocations.First()} for attractor {AttractorName}");
-                    return viableLocations.First(); //* Game1.tileSize;
-
+                    List<Vector2> viableTiles = new TerrainSelector<TerrainFeature>(T=> T.GetType().Name == AttractorName ).keysIn(loc);
+                    viableTiles.Shuffle();
+                    foreach (var location in viableTiles)
+                    {
+                        if (checkAttractor(loc.terrainFeatures[location]))
+                            return location;    
+                    }
+                    return null;
                 }
                 else if (AttractorType == "object")
                 {
@@ -63,10 +66,13 @@ namespace BugCatching
                         if (AttractorName != null && AttractorName != "" && AttractorName == objectName)
                         {
                             if (checkAttractor(loc.objects[key]))
-                                return key * Game1.tileSize;
+                            {
+                                Log.debug($"{loc.objects[key]} at {key}");
+                                return key;
+                            }
+                                
                         }
                     }
-
                     return null;
                 }
                 else throw new ArgumentException("Bad location type");
@@ -107,7 +113,7 @@ namespace BugCatching
                 return ret;
             }
 
-        }
+        } 
 
         public Vector2? checkLocation(GameLocation location)
         {
@@ -125,6 +131,7 @@ namespace BugCatching
                 return null;
             else if (Attractors.Count > 0)
             {
+                // Should normalize by attractor 
                 foreach(Attractor attractor in Attractors)
                 {
                     var spawnLocation = attractor.checkLocation(this, location);
