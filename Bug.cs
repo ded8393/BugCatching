@@ -178,13 +178,15 @@ namespace BugCatching
             Vector2 dropTile = Game1.getMousePosition().toVector2() + Game1.viewport.toVector2();
             this.placementAction(Game1.currentLocation, (int)Math.Floor(dropTile.X), (int)Math.Floor(dropTile.Y));
         }
-        public override bool isPassable()
-        {
-            if (bugModel.Classification == "Floater")
-                return true;
-            else
-                return false;
-        }
+        //public override bool isPassable()
+        //{
+        //    //Use BugApi to get Classification
+        //    string Classification;
+        //    if (Classification == "Floater")
+        //        return true;
+        //    else
+        //        return false;
+        //}
         public override bool placementAction(GameLocation location, int x, int y, Farmer who = null)
         {
             //receives absolute position
@@ -205,19 +207,9 @@ namespace BugCatching
             return true;
         }
         // public virtual void farmerAdjacentAction(GameLocation location)
-        public ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
-         {
-            Log.info("recreating: " + additionalSaveData["bugId"]);
-            BugModel bugModel = BugApi.findOrCreateBugModelFromId(additionalSaveData["bugId"]);
-            return new Bug(bugModel);
-         }
 
-        public object getReplacement()
-        {
-            Chest r = new Chest(true);
-            r.items.Add(heldObject);
-            return r;
-        }
+
+
 
         public Dictionary<string, string> getAdditionalSaveData()
         {
@@ -228,6 +220,13 @@ namespace BugCatching
             return data;
         }
 
+        public object getReplacement()
+        {
+            Chest r = new Chest(true);
+            r.items.Add(heldObject);
+            return r;
+        }
+
         public void rebuild(Dictionary<string, string> additionalSaveData, object replacement)
         {
             Log.info("rebuilding bug: " + additionalSaveData["bugId"]);
@@ -235,6 +234,13 @@ namespace BugCatching
             build(bugModel);
             stack.Value = int.Parse(additionalSaveData["stack"]);
         }
+
+        public ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
+         {
+            Log.info("recreating: " + additionalSaveData["bugId"]);
+            BugModel bugModel = BugApi.findOrCreateBugModelFromId(additionalSaveData["bugId"]);
+            return new Bug(bugModel);
+         }
 
         public Dictionary<string, string> getSyncData()
         {

@@ -31,6 +31,20 @@ namespace BugCatching
         public string QuickItemDataString { get; set; }
         public int TileIndex { get; set; } = 504;
         public string Recipe { get; set; }
+        public float maxRarity { get; set; }
+
+
+        public string TextureAsset { get; set; }
+        public static Texture2D texture { get; set; }
+
+        public Texture2D getTexture()
+        {
+            texture = BugCatchingMod._helper.Content.Load<Texture2D>(TextureAsset, ContentSource.ModFolder);
+            if (texture != null)
+                Log.info("got Texture");
+            return texture;
+
+        }
     }
 
     public class DataInjector : IAssetEditor

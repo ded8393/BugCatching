@@ -21,6 +21,10 @@ namespace BugCatching
         private static IModHelper Helper;
         internal static List<BugModel> AllBugs = BugCatchingMod.AllBugs;
         internal static int Count = 0;
+        internal static List<string> AllKnownClassifications = new List<string>() { "Floater", "Crawler" };
+
+
+
 
         public static void init(IModHelper helper)
         {
@@ -47,14 +51,7 @@ namespace BugCatching
                 Log.info("Parsed name: " + bugName + " tileIndex: " + tileIndex);
                 bugModel = createPlainBugModel(bugName, tileIndex.toInt());
                 return bugModel;
-            }
-            
-
-            //if (bugId.Contains("Plain"))
-            //{
-               
-            //}
-            
+            }   
                 
         }
 
@@ -70,13 +67,23 @@ namespace BugCatching
         public static BugModel createBugModelFromCritter(Critter critter)
         {
             string bugName = critter.GetType().ToString().Split('.').Last();
-            if (bugName == "Floater")
+            if (AllKnownClassifications.Contains(bugName))
             {
-                 Floater f = (Floater)critter;
-                 return (BugModel) f.data.BugModel;
-           }
-            int TileIndex = Helper.Reflection.GetField<int>(critter, "baseFrame").GetValue();
+                BugModel bugModel = new BugModel();
+                if (bugName == "Floater")
+                {
+                    Floater f = (Floater) critter;
+                    bugModel = AllBugs.Find(b => b.FullId == f.data.BugModel.FullId);
+                }
+                else
+                {
+                    CustomCritter c = (CustomCritter)critter;
+                    bugModel = AllBugs.Find(b => b.FullId == c.data.BugModel.FullId);
+                }
+                return bugModel;
+            }
 
+            int TileIndex = Helper.Reflection.GetField<int>(critter, "baseFrame").GetValue();
             return createPlainBugModel(bugName, TileIndex);
            
         }

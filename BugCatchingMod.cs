@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using Microsoft.Xna.Framework;
 
@@ -37,6 +38,8 @@ namespace BugCatching
         public static List<BugModel> AllBugs = new List<BugModel>();
         public static List<CritterEntry> AllCritters = new List<CritterEntry>();
         public static List<NetModel> AllNets = new List<NetModel>();
+        public static List<CritterLocations> AllCritterLocations = new List<CritterLocations>();
+        public static List<CritterEntry> SeasonalCritters = new List<CritterEntry>();
         public static BugCatchingSkill skill;
 
         internal static DataInjector DataInjector;
@@ -50,8 +53,12 @@ namespace BugCatching
 
             _helper.Events.GameLoop.UpdateTicked += LoadCritters;
             BugApi.init(_helper);
-            CritterLocations.init(_helper);
 
+            new TileAction("disturbBug", DisturbBug).register();
+            ButtonClick.UseToolButton.onClick(onDigBug);
+
+            _helper.Events.GameLoop.DayStarted += createCritterLocationList;
+            //_helper.Events.World.LocationListChanged += updateCritterLocationsList;
             _helper.Events.Player.Warped += onLocationChanged;
             _helper.Events.World.DebrisListChanged += catchBugDebris;
             DataInjector = new DataInjector(_helper);
@@ -85,56 +92,118 @@ namespace BugCatching
                 
                 AllNets.AddOrReplace(netModel);
                 //net.ParentSheetIndex = Id;
-                var net = new BugNetTool(netModel);
-                CustomObjectData.newBigObject(netModel.FullId, net.loadTexture(), Color.White, netModel.Name, netModel.Description, netModel.TileIndex, netModel.Name, false, 0, false, false, "Crafting -9", 0, -300, new CraftingData(netModel.Name, netModel.Recipe), typeof(BugNetTool));
+ 
+                CustomObjectData.newBigObject(netModel.FullId, netModel.getTexture(), Color.White, netModel.Name, netModel.Description, netModel.TileIndex, netModel.Name, false, 0, false, false, "Crafting -9", 0, -300, new CraftingData(netModel.Name, netModel.Recipe), typeof(BugNetTool));
                 Log.info($"adding {netModel.FullId} with recipe {netModel.Recipe}");
 
                 //CustomObjectData.newObject($"{netModel.FullId}.Tool", new BugNetTool(netModel).loadTexture(), Color.White, netModel.Name, netModel.Description, netModel.TileIndex, "", "Net", 1, -300, craftingData: new CraftingData($"{netModel.FullId}.Tool", netModel.Recipe), customType: typeof(BugNetTool));
             }
 
             //_helper.Data.WriteJsonFile("data\\bugs.json", AssetData);
-            Helper.Events.GameLoop.UpdateTicked -= LoadCritters;
+            _helper.Events.GameLoop.UpdateTicked -= LoadCritters;
         }
 
 
         /*********
         ** Private methods
         *********/
+        private void createCritterLocationList(object sender, StardewModdingAPI.Events.DayStartedEventArgs args)
+        {
+
+            Log.debug("in create critter day start event");
+            SeasonalCritters = AllCritters.Where(c => c.SpawnConditions.Seasons.Contains(Game1.currentSeason)).ToList();
+            CritterLocations Farm = new CritterLocations(Game1.getFarm());
+            Farm.buildAllPossibleHomes();
+            Farm.balanceSpawning();
+            AllCritterLocations.AddOrReplace(Farm);
+            //Helper.Events.GameLoop.DayStarted -= createCritterLocationList;
+        }
+        private void updateCritterLocationsList(object sender, LocationListChangedEventArgs args)
+        {
+            if (args.Added.Count() > 0)
+            {
+                foreach (GameLocation location in args.Added.ToList())
+                {
+                    updateCritterLocations(location);
+                }
+
+            }
+            if (args.Removed.Count() > 0)
+                AllCritterLocations.RemoveAll(l => args.Removed.Contains(l.Location));
+
+           //Helper.Events.World.LocationListChanged -= updateCritterLocationsList;
+        }
+        internal void updateCritterLocations(GameLocation location)
+        {
+
+            if (location.IsOutdoors)
+            {
+                CritterLocations thisLocation = new CritterLocations(location);
+                thisLocation.buildAllPossibleHomes();
+                thisLocation.balanceSpawning();
+                AllCritterLocations.AddOrReplace(thisLocation);
+            }
+        }
         /// <summary>Raised after the player presses a button on the keyboard, controller, or mouse.</summary>
         /// <param name="sender">The event sender.</param>
         /// <param name="args">The event data.</param>
+        /// 
         private void onLocationChanged(object sender, StardewModdingAPI.Events.WarpedEventArgs args)
+        {
+            Log.info($"Location changed to {args.NewLocation}");
+            try
+            {
+                CritterLocations CritterLocator = AllCritterLocations.Where(l => l.Location == Game1.currentLocation).SingleOrDefault();
+                CritterLocator.spawnCritters();
+            }
+            catch 
+            {
+                Log.debug("CritterLocator failed, creating new CritterLocations");
+                CritterLocations CritterLocator = new CritterLocations(args.NewLocation);
+                CritterLocator.buildAllPossibleHomes();
+                CritterLocator.balanceSpawning();
+                CritterLocator.spawnCritters();
+                AllCritterLocations.AddOrReplace(CritterLocator);
+            }
+
+           // Helper.Events.Player.Warped -= onLocationChanged; 
+        }
+        private void onDigBug(object sender, StardewModdingAPI.Events.ButtonPressedEventArgs args)
         {
             if (Game1.CurrentEvent != null)
                 return;
-            var CritterLocations = new CritterLocations(args.NewLocation);
-            foreach (var entry in CritterEntry.critters)
+            if (!args.Button.IsUseToolButton() || !(Game1.player.CurrentTool is StardewValley.Tools.Hoe))
+                return;
+
+            Vector2 tile = new Vector2((int)Game1.player.GetToolLocation(false).X / Game1.tileSize + 0.5f, (int)Game1.player.GetToolLocation(false).Y / Game1.tileSize + 0.5f);
+            DisturbBug("", Game1.currentLocation, tile, "Back");
+        }
+
+        public bool DisturbBug(string action, GameLocation location, Vector2 tile, string layerName)
+        {
+            Log.debug($"{action} | {location} | {tile} | {layerName}");
+            bool flag = false;
+
+            CritterLocations CritterLocator = AllCritterLocations.Where(l => l.Location == Game1.currentLocation).Single();
+            CritterLocation critterLocation = CritterLocator.getCritterHome(layerName, tile);
+
+            if (critterLocation != null)
             {
-                var spawnTiles = entry.Value.attemptSpawn(args.NewLocation);
-                if (spawnTiles.Count != 0)
-                {
-                    foreach (var tile in spawnTiles)
-                    {
-                        if (tile == null)
-                            continue;
-                        Monitor.Log($"Adding {entry.Value.BugModel.Name} at location {tile}");
-                        if (entry.Value.BugModel.Classification == "Digger")
-                            CritterLocations.AddDiggableCritterToLocation(entry.Value, tile, "Back");
-                        else
-                            args.NewLocation.addCritter(entry.Value.makeCritter(tile));
-                    }
-                    
-                }
-                
+                CritterLocator.activateCritter(critterLocation);
+                flag = true;
             }
+
+            return flag;
         }
         private void catchBugDebris(object sender, DebrisListChangedEventArgs args)
         {
             if (!args.IsCurrentLocation)
                 return;
             foreach (Debris debris in args.Added)
-                if (debris.item.getCategoryName() == "Bug")
-                    args.Location.debris.Remove(debris);
+                if (debris.item!=null)
+                    if (debris.item.getCategoryName() == "Bug")
+                        args.Location.debris.Remove(debris);
+
         }
 
     }

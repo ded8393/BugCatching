@@ -5,16 +5,20 @@
       "Id": "001",
       "Description": "its worth a try...",
       "QuickItemDataString": "Trash Net/10/-300/Net/its worth a try.../false/false/0/Trash Net",
+      "TextureAsset": "Assets/bugnet.png",
       "TileIndex": 5,
-      "Recipe": "168 1 169 1"
+      "Recipe": "168 1 169 1",
+      "maxRarity": 0.7
     },
     {
       "Name": "Cloth Net",
       "Id": "002",
       "Description": "catch bugs",
       "QuickItemDataString": "Cloth Net/10/-300/Net/catch bugs/false/false/0/Cloth Net",
+      "TextureAsset": "Assets/bugnet.png",
       "TileIndex": 5,
-      "Recipe": "428 1 294 1"
+      "Recipe": "428 1 294 1",
+      "maxRarity": 0.8
     }
   ],
   "AllCritters": [
@@ -23,31 +27,30 @@
         "Id": "0",
         "Name": "Monarch Butterfly",
         "Description": "looka this lil bugger here, eh?",
-        "Classification": "Flying",
         "SpriteData": {
           "TextureAsset": "Assets/monarch.png",
           "Scale": 1
         },
+        "Rarity": 0.80,
         "Price": 1000,
         "QuickItemDataString": "Monarch Butterfly/1000/-300/Bug/its so pretty/true/true/0/Monarch Butterfly"
 
       },
+        "Attractors": [
+          {
+            "AttractorType": "random"
+          }
+        ],
 
       "SpawnConditions": {
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
         "MinTimeOfDay": 600,
         "MaxTimeOfDay": 1800,
-        "Rarity": 0.70,
         "RequireDarkOut": false,
-        "AllowRain": false,
-        "Attractors": [
-          {
-            "AttractorType": "random"
-          }
-        ]
+        "AllowRain": false
       },
-
+      "Classification": "Floater",
       "SpawnAttempts": 9,
       "Behavior": {
        
@@ -59,33 +62,27 @@
         "Id": "1",
         "Name": "Inchworm",
         "Description": "only an inch long",
-        "Classification": "Crawler",
         "SpriteData": {
-          "TextureAsset": "Assets/Inchworm.png",
-          "TileIndex": 0,
-          "Variations": 0,
-          "FrameWidth": 32,
-          "FrameHeight": 32,
-          "Scale": 1
+          "TextureAsset": "Assets/Inchworm.png"
         },
+        "Rarity": 0.50,
         "Price": 100,
         "QuickItemDataString": "Inchworm/100/-50/Bug/only an inch long/true/true/0/Inchworm"
       },
-
-      "SpawnConditions": {
-        "Seasons": [ "spring", "summer", "fall" ],
-        "Locations": [ "Farm" ],
-        "MinTimeOfDay": 600,
-        "MaxTimeOfDay": 1800,
-        "Rarity": 0.50,
-        "RequireDarkOut": false,
-        "AllowRain": false,
         "Attractors": [
           {
             "AttractorType": "terrainfeature",
             "AttractorName": "Grass"
           }
-        ]
+        ],
+      "Classification": "Crawler",
+      "SpawnConditions": {
+        "Seasons": [ "spring", "summer", "fall" ],
+        "Locations": [ "Farm" ],
+        "MinTimeOfDay": 600,
+        "MaxTimeOfDay": 1800,
+        "RequireDarkOut": false,
+        "AllowRain": false
 
       },
 
@@ -99,39 +96,33 @@
         "Id": "2",
         "Name": "Eastern-Tailed Blue",
         "Description": "With this coloration, must be a male.",
-        "Classification": "Flying",
+        "Rarity": 0.99,
         "Price": 2000,
         "QuickItemDataString": "Eastern-Tailed Blue Butterfly/700/-200/Bug/With this coloration, must be a male./true/true/0/Eastern-Tailed Blue Butterfly",
         "SpriteData": {
-          "TextureAsset": "Assets/Eastern-Tailed-Blue.png",
-          "TileIndex": 0,
-          "Variations": 0,
-          "FrameWidth": 32,
-          "FrameHeight": 32,
-          "Scale": 1
+          "TextureAsset": "Assets/Eastern-Tailed-Blue.png"
         }
       },
+      "Attractors": [
+        {
+          "AttractorType": "terrainfeature",
+          "AttractorName": "Tree",
+          "PropertyName": "treeType",
+          "IsValue": "3"
+        }
+      ],
+      "Classification": "Floater",
       "SpawnConditions": {
-        "Rarity": 0.99,
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
         "MinTimeOfDay": 600,
         "MaxTimeOfDay": 1800,
         "RequireDarkOut": false,
-        "AllowRain": false,
-        "Attractors": [
-          {
-            "AttractorType": "terrainfeature",
-            "AttractorName": "Tree",
-            "PropertyName": "treeType",
-            "IsValue": "3"
-          }
-        ]
+        "AllowRain": false
       },
-
-
       "SpawnAttempts": 90,
       "Behavior": {
+        //"DisturbableHome": true,
         "NumFrames": 4
       }
     },
@@ -140,37 +131,28 @@
         "Id": "3",
         "Name": "Dung Beetle",
         "Description": "Um... You should probably wash your net.",
-        "Classification": "Digger",
-        "SpriteData": {
-          "TextureAsset": "Assets/dungBeetle.png",
-          "TileIndex": 0,
-          "Variations": 0,
-          "FrameWidth": 32,
-          "FrameHeight": 32,
-          "Scale": 1,
-          "Flying": false
-        },
         "Price": 100,
-        "QuickItemDataString": "Dung Beetle/300/-150/Bug/Um... You should probably wash your net./true/true/0/Dung Beetle"
+        "Rarity": 0.25,
+        "QuickItemDataString": "Dung Beetle/300/-150/Bug/Um... You should probably wash your net./true/true/0/Dung Beetle",
+       "SpriteData": {
+          "TextureAsset": "Assets/dungBeetle.png"
+        }
       },
-
+      "Attractors": [
+        {
+        "AttractorType": "terrainfeature",
+        "AttractorName": "Grass"
+        }
+      ],
+      "Classification": "Digger",
       "SpawnConditions": {
         "Seasons": [ "spring", "summer", "fall" ],
         "Locations": [ "Farm" ],
         "MinTimeOfDay": 600,
         "MaxTimeOfDay": 1800,
-        "Rarity": 0.25,
         "RequireDarkOut": false,
-        "AllowRain": false,
-        "Attractors": [
-          {
-            "AttractorType": "terrainfeature",
-            "AttractorName": "Grass"
-          }
-        ]
-
+        "AllowRain": false
       },
-
       "SpawnAttempts": 9,
       "Behavior": {
         "NumFrames": 9

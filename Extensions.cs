@@ -21,5 +21,13 @@ namespace BugCatching
                 list[n] = value;
             }
         }
+        public static T PopRandom<T>(this IList<T> list)
+        {
+            list.Shuffle();
+            int randomIndex = (int)Math.Floor(new Random().NextDouble() * list.Count);
+            T item = list[randomIndex];
+            list.RemoveAt(randomIndex);
+            return item;
+        }
     }
 }

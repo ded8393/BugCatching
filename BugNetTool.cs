@@ -20,7 +20,7 @@ namespace BugCatching
     public class BugNetTool : Hoe, ISaveElement, ICustomObject
     {
         internal IMonitor Monitor = BugCatchingMod._monitor;
-  
+        //move refs to BugApi
         internal List<BugModel> AllBugs = BugCatchingMod.AllBugs;
         internal List<NetModel> AllNets = BugCatchingMod.AllNets;
 
@@ -32,10 +32,10 @@ namespace BugCatching
         public virtual Texture2D texture { get; private set; }
 
         private bool inUse;
-        private static bool caughtBug;
-        private static Critter Critter;
+        private bool caughtBug;
+        private static Critter CaughtCritter;
+        private static Bug BugInNet;
 
-        public override string DisplayName { get => "Bug Net"; set => base.DisplayName = "Bug Net"; }
         public override string getDescription()
         {
             string text = netModel.Description;
@@ -43,12 +43,7 @@ namespace BugCatching
             int width = Game1.tileSize * 4 + Game1.tileSize / 4;
             return Game1.parseText(text, smallFont, width);
         }
-
-        public Texture2D loadTexture()
-        {
-            texture = BugCatchingMod._helper.Content.Load<Texture2D>(@"Assets/bugnet.png");
-            return texture;
-        }
+       
         public BugNetTool()
              : base()
         {
@@ -79,25 +74,25 @@ namespace BugCatching
             this.netModel = netModel;
             if (data == null)
             {
-                data = CustomObjectData.collection.ContainsKey(netModel.FullId) ? CustomObjectData.collection[netModel.FullId] : new CustomObjectData(netModel.FullId, netModel.QuickItemDataString, this.loadTexture(), Color.White, netModel.TileIndex, true, typeof(BugNetTool));
+                data = CustomObjectData.collection.ContainsKey(netModel.FullId) ? CustomObjectData.collection[netModel.FullId] : new CustomObjectData(netModel.FullId, netModel.QuickItemDataString, netModel.getTexture(), Color.White, netModel.TileIndex, true, typeof(BugNetTool));
             }
             if (sObject == null)
             {
                 sObject = new SObject(data.sdvId, 1);
             }
             if (texture == null)
-                loadTexture();
+                texture = netModel.getTexture();
 
             Name = netModel.Name;
+            DisplayName = Name;
             description = netModel.Description;
 
             InitialParentTileIndex = 504;
             CurrentParentTileIndex = 504;
             IndexOfMenuItemView = 5;
-            UpgradeLevel = 4;
+            UpgradeLevel = 1;
 
             InstantUse = false;
-            caughtBug = false;
             inUse = false;
         }
 
@@ -113,6 +108,10 @@ namespace BugCatching
         public override bool canBeTrashed()
         {
             return true;
+        }
+        public override bool doesShowTileLocationMarker()
+        {
+            return false;
         }
 
         public override bool actionWhenPurchased()
@@ -131,44 +130,65 @@ namespace BugCatching
         {
             base.draw(b);
         }
+        //public Rectangle getNetZone(Farmer who)
+        //{
+
+        //}
 
         public override bool beginUsing(GameLocation location, int x, int y, StardewValley.Farmer who)
         {
             inUse = true;
-            x = (int)who.GetToolLocation(false).X;
-            y = (int)who.GetToolLocation(false).Y;
-            Rectangle rectangle = new Rectangle(x - 32, y - 32, 64, 64);
+            Log.info("beginging hte use");
+            Rectangle rectangle = new Rectangle((int)who.GetToolLocation(false).X, (int)who.GetToolLocation(false).Y, 64, 64);
+
+            CritterLocations checkLocation = new CritterLocations(location);
+            List<Critter> critters = new List<Critter>();
+            critters = checkLocation.getAllActiveCritters();
+
             if (!caughtBug)
-            {
-                CritterLocations checkLocation = new CritterLocations(location);
-                List<Critter> critters = new List<Critter>();
-                critters = checkLocation.GetCritters();
-                if (critters.Count > 0) 
+                if (critters.Count > 0)
                     foreach (Critter critter in critters)
-                    {
-                        if (critter.getBoundingBox(0, 0).Intersects(rectangle))
-                        {
-                            //Game1.addHUDMessage(new HUDMessage(critter.GetType().ToString(), 3));
-                            Critter = critter;
-                            caughtBug = true;
-                            break;
-                        }
-                    }
-            }
-           
+                        if (checkCatch(critter, rectangle))
+                            break; 
+
 
             return base.beginUsing(location, x, y, who);
         }
 
+        public bool checkCatch(Critter critter, Rectangle catchZone)
+        {
+            caughtBug = false;
+            Log.info($"checking the critter {critter.GetHashCode().ToString()}");
+            if (critter.getBoundingBox(0, 0).Intersects(catchZone))
+            {
+                BugModel bug = BugApi.createBugModelFromCritter(critter);
+                if (bug.Rarity < netModel.maxRarity)
+                {
+                    CaughtCritter = critter;
+                    caughtBug = true;
+                    Log.info($"Caught a bug {bug.Name}");
+                }
+                else
+                {
+                    Game1.addHUDMessage(new HUDMessage($"The {bug.Name} escaped your {this.Name}"));
+                    //check for bugHasItem
+                }
+  
+            }
+            return caughtBug;
+        }
+
         public override void DoFunction(GameLocation location, int x, int y, int power, StardewValley.Farmer who)
         { 
-            who.Stamina -= (float)(2 * power) - (float)who.FarmingLevel * 0.1f;
-            power = who.toolPower;
-            who.stopJittering();
+            who.Stamina -= (float)(2 * power) - (float)who.GetCustomSkillLevel(BugCatchingMod.skill) * 0.1f;
 
-            if ( caughtBug && Critter != null)
+            Log.info($"Doing a functions");
+            if (caughtBug & CaughtCritter != null)
             {
+                Log.info("yes the critter is gud");
+                BugInNet = BugApi.getBugFromCritterType(CaughtCritter);
                 getBugFromNet(location, who); 
+                
             }
             
            
@@ -176,35 +196,35 @@ namespace BugCatching
 
         public static void getBugFromNet(GameLocation location, StardewValley.Farmer who)
         {
-            Bug BugInNet = BugApi.getBugFromCritterType(Critter);
-
+            Log.info($"Now the bug comes from the net");
             CritterLocations critterLocations = new CritterLocations(location);
-            critterLocations.RemoveThisCritter(Critter);
+            critterLocations.removeThisCritter(CaughtCritter);
             who.addItemByMenuIfNecessary((Item) BugInNet.getOne());
 
             who.AddCustomSkillExperience(BugCatchingMod.skill, BugInNet.bugModel.Price);
             Log.info("player experience: " + Game1.player.GetCustomSkillExperience(BugCatchingMod.skill).ToString());
-            Critter = (Critter) null;
-            caughtBug = false;
+            CaughtCritter = (CustomCritter) null;
+            
         }
 
-       
+        public override void leftClick(Farmer who){
+            Log.info("the left click");
+            base.leftClick(who); }       
         public override void endUsing(GameLocation location, Farmer who)
         {
+            inUse = false;
+            Log.info("end using");
             base.endUsing(location, who);
         }
 
         public override bool onRelease(GameLocation location, int x, int y, StardewValley.Farmer who)
         {
-            inUse = false;
+            Log.info("releasing");
             return base.onRelease(location, x, y, who);
         }
-       
 
-        public override void leftClick(Farmer who)
-        {
-            base.leftClick(who);
-        }
+
+
 
         public Dictionary<string, string> getAdditionalSaveData()
         {
@@ -233,9 +253,6 @@ namespace BugCatching
         public ICustomObject recreate(Dictionary<string, string> additionalSaveData, object replacement)
         {
             NetModel netModel = AllNets.Find(n => n.FullId == additionalSaveData["id"]);
-            //CustomObjectData data = new CustomObjectData();
-            //data = CustomObjectData.collection.Find(o => o.Key == netModel.FullId).Value;
-            //Vector2 tileLoc = additionalSaveData["tileLocation"].Split(',').toList(i => i.toInt()).toVector<Vector2>();
             return new BugNetTool(netModel);
         }
 

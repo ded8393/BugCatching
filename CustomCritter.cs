@@ -67,6 +67,13 @@ namespace BugCatching
             this.xVelocity = (float)(int)((double)this.xVelocity - (double)this.xVelocity / 2.0);
             this.yVelocity = (float)(int)((double)this.yVelocity - (double)this.yVelocity / 2.0);
         }
+	//todo: test operators ; Type error on attempt to cast Floater to CustomCritter
+        public static implicit operator CustomCritter(CritterEntry critterEntry)
+        {
+            return new CustomCritter(critterEntry);
+
+        }
+
 
     }
 
@@ -91,7 +98,12 @@ namespace BugCatching
         {
             this.sprite.draw(b, Game1.GlobalToLocal(Game1.viewport, this.position + new Vector2(-64f, this.yJumpOffset - 128f + this.yOffset)), this.position.Y / 10000f, 0, 0, Color.White, this.flip, data.BugModel.SpriteData.Scale, 0.0f, false);
         }
+        public static explicit operator CustomCritter(Floater floater)
+        {
+             return new CustomCritter(floater.data);
+        }
     }
+
     public class Crawler : CustomCritter
     {
         private int crawlTimer;
